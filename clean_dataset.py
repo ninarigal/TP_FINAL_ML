@@ -39,8 +39,9 @@ def create_year_column(df, current_year):
 def clean_transmission(df):
     df['Transmisión'] = df['Transmisión'].replace('semiautomatica', 'automatica secuencial')
     #remplazar nan por automática
-    df = df.fillna({'Transmisión': 'automatica'})
-
+    for i in range(len(df)):
+        if df['Transmisión'][i] != 'manual' and df['Transmisión'][i] != 'automatica secuencial' and df['Transmisión'][i] != 'automatica':
+            df.loc[i, 'Transmisión'] = 'automatica'
     return df
 
 def convert_to_dollars(df):
