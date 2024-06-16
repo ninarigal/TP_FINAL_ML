@@ -28,7 +28,7 @@ class XGBoost:
     def train_test_split(self, data):
         X = data[self.features]
         Y = data[self.target]
-        return train_test_split(X, Y, test_size=0.2, random_state=0)
+        return train_test_split(X, Y, test_size=0.3, random_state=0)
     
     def plot(self, y_test, y_preds):
         plt.scatter(y_test, y_preds, color='black', alpha=0.5, s=10, )
@@ -37,9 +37,8 @@ class XGBoost:
         plt.ylabel('Predicciones')
         plt.title('Valores reales vs Predicciones')
         plt.show()
-
-        #for i in range(len(y_test)):
-        #    print(f'Real: {y_test.iloc[i]}, Predicción: {y_preds[i]}')
+                
+               
 
 def xgboost(data, target):
     X = data.drop([target], axis=1)
@@ -47,6 +46,14 @@ def xgboost(data, target):
     X_train, X_test, Y_train, Y_test = xgb.train_test_split(data)
     xgb.fit(X_train, Y_train)
     Y_pred = xgb.predict(X_test)
+    
+    #for i in range(len(Y_test)):
+    #    print(f'Real: {y_test.iloc[i]}, Predicción: {y_preds[i]}')
+       # if (Y_test.iloc[i] - Y_pred[i] > 10000):
+        #    print(f'Real: {Y_test.iloc[i]}, Predicción: {Y_pred[i]}')
+        #    print(f'Diferencia: {Y_test.iloc[i] - Y_pred[i]}')
+            
+           
     mse, r2 = xgb.evaluate(Y_test, Y_pred)
     print(f'Mean Squared Error: {mse}')
     print(f'R2 Score: {r2}')
