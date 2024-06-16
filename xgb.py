@@ -38,6 +38,9 @@ class XGBoost:
         plt.title('Valores reales vs Predicciones')
         plt.show()
 
+        #for i in range(len(y_test)):
+        #    print(f'Real: {y_test.iloc[i]}, Predicción: {y_preds[i]}')
+
 def xgboost(data, target):
     X = data.drop([target], axis=1)
     xgb = XGBoost(X.columns, 'Precio')

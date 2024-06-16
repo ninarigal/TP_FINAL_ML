@@ -15,8 +15,7 @@ def clean_dataset(df):
     df = clean_km(df)
     df = clean_año(df)
     df = clean_versiones(df)
-    df = df.drop(columns=[ 'Tipo de combustible', 'Tipo de carrocería', 'Con cámara de retroceso', 'Puertas', 'Año', 'Moneda'])
-        
+    df = df.drop(columns=[ 'Tipo de combustible', 'Tipo de carrocería', 'Con cámara de retroceso', 'Puertas', 'Año', 'Moneda', 'Título versión'])
     return df 
 
 def to_lower_case(df):
@@ -159,7 +158,8 @@ def clean_versiones(df):
         elif marca == 'chevrolet':
             df_marca = df[df['Marca'] == 'chevrolet'].copy()
             keywords = ['turbo mt', 'turbo at', 'ltz']
-            df_chevrolet_tracker = df_marca[df_marca['Modelo'] == 'tracker'].copy().apply(lambda x: map_version(x, keywords))
+            df_chevrolet_tracker= df_marca[df_marca['Modelo'] == 'tracker'].copy()
+            df_chevrolet_tracker['Versión final'] = df_chevrolet_tracker['Título versión'].apply(lambda x: map_version(x, keywords))
             df.update(df_chevrolet_tracker)
             keywords = ['lt', 'dlx', 'hp', 'ls', 'ltz', 'premier', 'rs', 'activ']
             df_marca = df_marca[df_marca['Modelo'] != 'tracker'].copy()
@@ -237,11 +237,118 @@ def clean_versiones(df):
             keywords = ['lx', 'ex', 'si', 'ext', 'i', 'exl', 'active']
             df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
             df.update(df_marca)
-        
 
-
-
+        elif marca == 'bmw':
+            df_marca = df[df['Marca'] == 'bmw'].copy()
+            keywords = ['sdrive', 'xdrive', 'premium', 'm', 'selective', 'mpa']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['s drive', 'sdrive20i', 'sport', 'sportline', 'msport', 'msportx', '18i', '25i'], 'sdrive')).apply(lambda x: replace(x, ['x drive', 'x5xdrive40i', 'executive',  '30e', 'xdrive25i', 'x25i', '30i', '20i',  '40i' ], 'xdrive')).apply(lambda x: replace(x, ['m35i'], 'mpa'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'lexus':
+            df_marca = df[df['Marca'] == 'lexus'].copy()
+            keywords = ['luxury', 'f sport']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['ux250h', '250h'], ' luxury'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'nissan':
+            df_marca = df[df['Marca'] == 'nissan'].copy()
+            keywords = ['sense', 'exclusive', 'advance', 'uefa', 'se', 'd', 'i', 'acenta', 'e power', 'tekna', 'visia', 'nft', '4x4']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['sence'], 'sense')).apply(lambda x: replace(x, ['excluisive', '3.5'], 'exclusive')).apply(lambda x: replace(x, ['special edition'], 'se')).apply(lambda x: replace(x, ['uefe'], 'uefa')).apply(lambda x: replace(x, ['teckna'], 'tekna')).apply(lambda x: replace(x, ['epower'], 'e power'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'subaru':
+            df_marca = df[df['Marca'] == 'subaru'].copy()
+            keywords = ['awd', 'dynamic', 'xs', 'r', 'x', 'a']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['sawd'], 'awd'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'haval':
+            df_marca = df[df['Marca'] == 'haval'].copy()
+            keywords = ['luxury', 'elite', 'great wall', 'coupe']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['4wd'], 'great wall')).apply(lambda x: replace(x, ['2wd'], 'coupe'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'dodge':
+            df_marca = df[df['Marca'] == 'dodge'].copy()
+            keywords =['se', 'sxt', 'rt']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['r/t'], 'rt'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'suzuki':
+            df_marca = df[df['Marca'] == 'suzuki'].copy()
+            keywords = ['jlx', 'xl', 'jiii', 'glx', 'jx', 'mt']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['gl plus', 'gl'], 'glx')).apply(lambda x: replace(x, ['jx', '1.3'], 'jlx')).apply(lambda x: replace(x, ['2.0', '2.0td'], 'mt'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'daihatsu':
+            df_marca = df[df['Marca'] == 'daihatsu'].copy()
+            keywords = ['1.6', '1.3']
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'lifan':
+            df_marca = df[df['Marca'] == 'lifan'].copy()
+            keywords=['1.8', '2.0']
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'mitsubishi':
+            df_marca = df[df['Marca'] == 'mitsubishi'].copy()
+            keywords = ['gls', 'glx', 'gl', 'gt', 'ls', 'semi high']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'kia':
+            df_marca = df[df['Marca'] == 'kia'].copy()
+            keywords = ['ex', 'sx', 'x line', 'lx', 'rock', 'pop', 'classic']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['xline'], 'x line')).apply(lambda x: replace(x, ['exclusive'], 'ex'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'jaguar':
+            df_marca = df[df['Marca'] == 'jaguar'].copy()
+            keywords = ['sc prestige', 'prestige']
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'geely':
+            df_marca = df[df['Marca'] == 'geely'].copy()
+            keywords = ['gs', 'gt', 'gl']
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'jac':
+            df_marca = df[df['Marca'] == 'jac'].copy()
+            keywords = ['intelligent']
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'chery':
+            df_marca = df[df['Marca'] == 'chery'].copy()
+            keywords = ['comfort', 'luxury']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['confort'], 'comfort'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'jetour':
+            df_marca = df[df['Marca'] == 'jetour'].copy()
+            keywords  = ['lt']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['turbo', 'premium', '7'], 'lt'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'audi':
+            df_marca = df[df['Marca'] == 'audi'].copy()
+            keywords = ['quattro', 'advanced', 'sport', 'stronic', 'offroad']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['quatro'], 'quattro'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'land rover':
+            df_marca = df[df['Marca'] == 'land rover'].copy()
+            keywords = ['sw', 'x', 'se', 'dynamic','sport', 'prestige', 'i', 'coupe', 'xedi', 'hse']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: replace(x, ['plus'], 'prestige'))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+        elif marca == 'hyundai':
+            df_marca = df[df['Marca'] == 'hyundai'].copy()
+            keywords = ['safety', 'style', 'gl', 'exd', 'xl', 'crdi', 'gls', 'tgdi', 'premium']
+            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df.update(df_marca)
+    
     return df         
+
+
 
         
 def main():
@@ -250,4 +357,4 @@ def main():
     df.to_csv("cleaned_data.csv", index=False)
 
 
-main()
+#main()
