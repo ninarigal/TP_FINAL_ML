@@ -348,8 +348,35 @@ def clean_versiones(df):
     
     return df         
 
+def clean_motores(df):
+    df['Título versión motor'] = df['Título'].str.cat(df['Versión'], sep=' ').cat(df['Motor'], sep=' ')
+    df['Motor final'] = df['Título versión motor']
+    keywords = ['1.0', '1.2', '1.3', '1.4', '1.5', '1.6', '1.8', '1.9', '2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8', '2.9', '3.0', '3.1', '3.2', '3.3', '3.5', '3.6', '3.7', '3.8', '4.0', '4.2', '4.3', '4.4', '4.5', '4.7', '4.8', '5.0', '5.2', '5.5', '5.7', '6.1', '6.4', '55 s']
 
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['1.0t', 'fiat pulse audace', 'aircross t200 shine', 'aircros shine t200', 'aircross t200 at7 shine', '1,0', 'nivus', '1.0l', 'volkswagen tcross 170 tsi 170 tsi 170 tsi', '1.0tsi', 'volkswagen tcross 170tsi'], '1.0'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['chevrolet tracker tracker lt', '1.2t'], '1.2'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['fiat pulse abarth', '1.3t', '1.3l', 'jeep compass s s nan', 'jeep compass serie s serie s nan'], '1.3'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['1,4', 'taos', '1.4t', '1.4l', 'volkswagen tiguan allspace 250 250 nan', 'audi q3 sportback 35 tfsi okm 2024 35 tfsi 35 tfsi 150 cv'], '1.4'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['1.5t', 'mini countryman cooper classic genco mini classic 136 cv', 'honda hrv lx nan', 'hyundai new creta new creta nan', 'bmw x1 18i sdrive 18i sdrive 1500 cc', 'bmw x1 18i okm 2024', 'bmw x1 18i', 'chery tiggo 2 luxury', 'xc40 t5 262hp', 'xc40 t5 awd'], '1.5'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['active pack at', '1.6thp', 'gt pack hybrid 2022 smart garage', 'peugeot 5008 allure', 'peugeot 5008 gt pack', 'peugeot 3008 gt pack', '1.6t', 'ds7 bastille', '1,6', 'c4 cactus feel', 'c4 cactus shine', 'c4 cactus vti at feel', '1.6i', 'c4 cactus noir', 'renault captur bose', 'renault sandero stepway expression', 'mercedez benz gla 250 4matic 2022 gla 250 4matic nan', 'mercedes benz clase gla 2016 250', '1.6l', 'nissan kicks', 'kia sportage lx'], '1.6'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['toyota chr hev cvt', 'toyota corolla cross seg hybrid', 'seg hybrida ecvt' '1.8l', 'chevrolet tracker awd premier', 'chevrolet tracker 2024 automatica lt', 'premier 1800', '1.8t', 'jeep renegade sport sport nan', 'jeep renegade sport sport', 'jeep renegade 80 aniversario edic 80 aniversario edic nan', 'jeep renegade 1.3t longitude t270 1.3t longitude t270', 'jeep renegade sport mt sport mt nan', '1.8i'], '1.8'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['corolla cross xli', '2,0', '2.0l', 'ford ecosport storm', 'mercedesbenz clase glc glc 300 amgline glc 300 amgline nan', 'mercedesbenz glc 300 coupe glc 300 coupe nan', 'glc 300 coupe glc 300 coupe nan', 'mercedes benz glc 300 coupe amg line', 'mini countryman cooper s classic confort genco mini countryman cooper s classic confort 192 hp', 'honda crv exl exl naftero', 'tiguan life 350 tsi 4m life 350 tsi 4m 2.0 l 230 cv 350 tsi', '2.0t', 'audi q5 45 tfsi advanced 0km 2024 45 tfsi advanced 45 tfsi 245 cv', '2.0tfsi', 'bmw x1 20i xdrive okm año 2024', 'bmw x1 25i año 2018 4x4 automatica', 'bmw x1 xdrive 20 i', 'bmw x1 xdrive 25i', 'bmw x1 25i xdrive', 'bmw x2 35i', 'bmw x2 m35i', 'volvo xc40 b4', 'volvo xc40 t4', 'volvo xc60 t8 462hp'], '2.0'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['honda crv lx 2016 lx nan', 'suzuki grand vitara jlx td mazda diesel jlx td mazda diesel mazda', '"2.4', '"""2.4', 'mitsubishi outlander at 4x4 gls'], '2.4'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['toyota rav4 limited', 'toyota rav4 4wd', 'toyota rav limited', '2.5l', '2.5i', 'nissan xtrail exclusive', 'xtrail epower', 'xtrail teckna', '2.5t'], '2.5'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['corolla cross xli', 'range rover sport tdv6 hse 4x4 at'], '2.7'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['toyota hilux sw4 srx', 'toyota sw4 diamond', 'toyota sw4 srx', 'toyota sw4 gr', '2.8tdi', 'chevrolet trailblazer premier'], '2.8'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['mercedes benz gle 53 amg 53 amg 6 cilindros', 'mercedesbenz gle 53 gle 53s 3.0 6 cilindros', 'luxury 3', 'bmw x5 40i xdrive', 'bmw x5 40i', 'bmw x3e hibrida enchufafle', 'bmw x3 xdrive 30i', 'bmw x3 xdrive 30e', 'bmw x3 m40i sport 2018', 'bmw x3 30e', 'bmw x3 30i', 'bmw x3 hibrida enchufable okm 2024', 'volvo xc60 inscription t6', 'volvo xc60 t6'], '3.0'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['mercedes benz ml 350 350 sport 4matic nan', 'mercedesbenz clase ml 350 blue efficiency blue efficiency nan', 'mercedes benz ml 350 4 matic 2012 ml 350 4 matic luxury 3498 cm3', 'honda pilot ex 2021 v6 ex v6 v'], '3.5'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['porsche macan turbo electric', 'porsche macan electric (g4)', 'jeep grand cherokee limited 4x4 2024 0km atx6 limited v6', 'jeep grand cherokee limited 4x4 2024 0km limited v6', 'jeep grand cherokee limited grand cherokee limited nan', '3.6l', 'jeep cherokee nc cherokee v6'], '3.6'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['jeep wrangler wrangler unlimited sport v6 wrangler unlimited sport v6 v6'], '3.8'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['mercedes benz ml 63 amg 63 amg nan'], '4.0'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['4.4l', 'bmw x6 m'], '4.4'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['mercedes benz gle 53 amg | blindaje rb3 gle 53 amg nan'], '5.5'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['lexus lx 570 año 2020'], '5.7'))
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['etron sportback s line 55 quattro', 'nuevo audi etron 55 quattro'], '55 s'))
 
+    df['Motor final'] = df['Título versión motor'].apply(lambda x: map_version(x, keywords))
+    return df
         
 def main():
     df = pd.read_csv("pf_suvs_i302_1s2024.csv")
@@ -357,4 +384,4 @@ def main():
     df.to_csv("cleaned_data.csv", index=False)
 
 
-#main()
+# main()
