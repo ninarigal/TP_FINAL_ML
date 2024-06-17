@@ -23,9 +23,10 @@ def main():
     data = pd.get_dummies(data, columns=['Transmisión'])
     data = pd.get_dummies(data, columns=['Versión final']) 
     data = pd.get_dummies(data, columns=['Gama'])
+    data = pd.get_dummies(data, columns=['Motor final'])
 
     data.drop(['Versión'], axis=1, inplace=True)
-    data.drop(['Motor'], axis=1, inplace=True)
+    # data.drop(['Motor'], axis=1, inplace=True)
     data.drop(['Tipo de vendedor'], axis=1, inplace=True)
     data.drop(['Título'], axis=1, inplace=True)
     data.drop(['Color'], axis=1, inplace=True)
