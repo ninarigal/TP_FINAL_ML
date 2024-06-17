@@ -15,6 +15,7 @@ def clean_dataset(df):
     df = clean_km(df)
     df = clean_año(df)
     df = clean_versiones(df)
+    df = clean_motores(df)
     df = df.drop(columns=[ 'Tipo de combustible', 'Tipo de carrocería', 'Con cámara de retroceso', 'Puertas', 'Año', 'Moneda', 'Título versión'])
     return df 
 
