@@ -16,7 +16,7 @@ def clean_dataset(df):
     df = clean_año(df)
     df = clean_versiones(df)
     df = clean_motores(df)
-    df = df.drop(columns=[ 'Tipo de combustible', 'Tipo de carrocería', 'Con cámara de retroceso', 'Puertas', 'Año', 'Moneda', 'Título versión'])
+    df = df.drop(columns=[ 'Tipo de combustible', 'Tipo de carrocería', 'Con cámara de retroceso', 'Puertas', 'Año', 'Moneda', 'Título versión', 'TV', 'Título versión motor'])
     return df 
 
 def to_lower_case(df):
