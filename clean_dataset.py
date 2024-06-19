@@ -2,21 +2,24 @@
 import pandas as pd
 import numpy as np
 import re
+#from imblearn.over_sampling import SMOTE
+from fuzzywuzzy import process
 
 def clean_dataset(df):
     df = to_lower_case(df)
+    df = clean_marcas(df)
+    df = clean_modelos(df)
     df = remove_special_characters(df)
     df = create_year_column(df, 2024)
     df = clean_transmission(df)
     df = convert_to_dollars(df)
-    df = clean_marcas(df)
-    df = clean_modelos(df)
     df = clean_precios(df)
     df = clean_km(df)
     df = clean_año(df)
     df = clean_versiones(df)
     df = clean_motores(df)
     df = df.drop(columns=[ 'Tipo de combustible', 'Tipo de carrocería', 'Con cámara de retroceso', 'Puertas', 'Año', 'Moneda', 'Título versión', 'TV', 'Título versión motor'])
+ 
     return df 
 
 def to_lower_case(df):
@@ -36,6 +39,13 @@ def create_year_column(df, current_year):
     df['Año'] = pd.to_numeric(df['Año'], errors='coerce')
     df.dropna(subset=['Año'], inplace=True)
     df['Edad'] = current_year - df['Año']
+
+    #esto no es correcto para preprocesar en valid/test
+    etron = df[df['Modelo'] == 'etron']
+    for e in etron.index:
+        if df['Edad'][e] == 2:
+            df = df.drop(e)
+    df.reset_index(drop=True, inplace=True)
     return df
 
 def clean_transmission(df):
@@ -53,7 +63,7 @@ def convert_to_dollars(df):
         if df['Moneda'][i] == '$':
             df.loc[i, 'Precio'] = df.loc[i, 'Precio'] / 1045 # 1 peso = 1045 dolars (9th may 2024)
     return df
-
+"""
 def clean_marcas(df):
     ds = ['ds7', 'ds automobiles']
     renault = ['sandero']
@@ -72,6 +82,27 @@ def clean_marcas(df):
         elif df['Marca'][i] in fiat:
             df.loc[i, 'Marca'] = 'fiat'
     return df
+"""
+def clean_marcas(df):
+    marcas = ['peugeot', 'toyota', 'fiat', 'ds', 'ssangyong', 'chevrolet',
+       'citroen', 'isuzu', 'ford', 'renault', 'porsche', 'jeep',
+       'mercedesbenz', 'mini', 'honda', 'hyundai', 'volkswagen',
+       'land rover', 'audi', 'geely', 'jaguar', 'daihatsu', 'subaru',
+       'suzuki', 'haval', 'dodge', 'nissan', 'lexus', 'kia', 'mitsubishi',
+       'lifan', 'jac', 'bmw', 'alfa romeo', 'chery', 'baic', 'jetour',
+       'volvo']
+    for i in range(len(df)):
+        if df['Marca'][i] in ['abarth']:
+            df.loc[i, 'Marca'] = 'fiat'
+
+    def get_closest_brand(brand):
+        closest_match, score = process.extractOne(brand, marcas)
+        if score > 70: 
+            return closest_match
+        return brand
+    df['Marca'] = df['Marca'].apply(get_closest_brand)
+
+    return df
 
 def clean_modelos(df):
     df['Modelo'] = df['Modelo'].replace('7', 'ds7')
@@ -81,13 +112,15 @@ def clean_modelos(df):
 
 def clean_precios(df):
     df = df.drop(df[df['Precio'] < 1000 ].index) # Eliminar precios menores a 1000
+    df = df.drop(df[(df['Edad'] == 0) & (df['Precio'] > 600000)].index)
 
-    #esto no es correcto para preprocesar en valid/test
-    etron = df[df['Modelo'] == 'etron']
-    for e in etron.index:
-        if df['Edad'][e] == 2:
-            df = df.drop(e)
+    #Eliminar precios de autos 0km que valen menos de 10000
+    df = df.drop(df[(df['Edad'] == 0) & (df['Precio'] < 15000)].index)
+    df = df.drop(df[(df['Edad'] == 1) & (df['Precio'] < 12000)].index)
+    df = df.drop(df[(df['Edad'] < 5) & (df['Precio'] < 8000)].index)
+
     df.reset_index(drop=True, inplace=True)
+
     return df
 
 def clean_km(df):
@@ -294,7 +327,7 @@ def clean_versiones(df):
         elif marca == 'mitsubishi':
             df_marca = df[df['Marca'] == 'mitsubishi'].copy()
             keywords = ['gls', 'glx', 'gl', 'gt', 'ls', 'semi high']
-            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
             df.update(df_marca)
         elif marca == 'kia':
             df_marca = df[df['Marca'] == 'kia'].copy()
@@ -344,8 +377,17 @@ def clean_versiones(df):
         elif marca == 'hyundai':
             df_marca = df[df['Marca'] == 'hyundai'].copy()
             keywords = ['safety', 'style', 'gl', 'exd', 'xl', 'crdi', 'gls', 'tgdi', 'premium']
-            df_marca['Título versión'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
+            df_marca['Versión final'] = df_marca['Título versión'].apply(lambda x: map_version(x, keywords))
             df.update(df_marca)
+
+       
+    #fv = df['Versión final'].value_counts()
+    #counter = 0
+    #for i in range(len(fv)):
+    #    if fv[i] < 5:
+    #        counter += 1
+    #        print(fv.index[i], fv[i])
+    #print('Total versiones con menos de 5 apariciones:', counter)
     
     return df         
 
@@ -377,9 +419,55 @@ def clean_motores(df):
     df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['mercedes benz gle 53 amg | blindaje rb3 gle 53 amg nan'], '5.5'))
     df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['lexus lx 570 año 2020'], '5.7'))
     df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['etron sportback s line 55 quattro', 'nuevo audi etron 55 quattro'], '55 s'))
-
+    df['Título versión motor'] = df['Título versión motor'].apply(lambda x: replace(x, ['1.8l'], '1.8'))
     df['Motor final'] = df['Título versión motor'].apply(lambda x: map_version(x, keywords))
+    
+    #quiero ver cuantos quedaron clasificados con other
+    #for i in range(len(df)):
+    #    if df['Motor final'][i] == 'other':
+    #        print(df['Título versión motor'][i])
+
+        
+            
+
     return df
+
+
+"""
+def apply_smote_if_needed(df, target_column, version_column, version_value, min_samples):
+    # Filtrar el DataFrame para la versión específica y contar las muestras
+    df_version = df[df[version_column] == version_value]
+    count_samples = df_version.shape[0]
+
+    # Aplicar SMOTE solo si hay menos de min_samples muestras
+    if count_samples < min_samples:
+        X = df_version.drop(columns=[target_column, version_column])
+        y = df_version[target_column]
+
+        smote = SMOTE(random_state=42)
+        X_resampled, y_resampled = smote.fit_resample(X, y)
+
+        # Crear un nuevo DataFrame con los datos balanceados
+        df_resampled = pd.concat([pd.DataFrame(X_resampled, columns=X.columns), pd.DataFrame(y_resampled, columns=[target_column])], axis=1)
+
+        return df_resampled
+    else:
+        return df_version  # Devolver el DataFrame original si no es necesario aplicar SMOTE
+
+
+
+def apply_smote_to_all_versions(df,  min_samples):
+    # Crear un DataFrame vacío para almacenar los datos balanceados
+    df_resampled = pd.DataFrame(columns=df.columns)
+
+    # Iterar sobre las versiones únicas y aplicar SMOTE a cada una
+    for version_value in df['Versión final'].unique():
+        df_resampled_version = apply_smote_if_needed(df, 'Precio', 'Versión final', version_value, min_samples)
+        df_resampled = pd.concat([df_resampled, df_resampled_version], axis=0)
+
+    return df_resampled
+"""
+
         
 def main():
     df = pd.read_csv("pf_suvs_i302_1s2024.csv")
@@ -387,4 +475,7 @@ def main():
     df.to_csv("cleaned_data.csv", index=False)
 
 
-# main()
+main()
+
+
+

@@ -17,6 +17,7 @@ def new_features(df):
 
     #df = create_gamas(df)
     df = assign_gamas(df)
+    df = clean_precios_gama(df)
     df.to_csv('cleaned_data.csv')
     return df
 
@@ -85,7 +86,18 @@ def assign_gamas(df):
     df.loc[df['Marca'].isin(gama_baja), 'Gama'] = 'Baja'
 
     return df
-    
 
 
+precios_max_gama = {
+    'Baja': 50000,
+    'Media': 80000,
+    'Lujo': 700000
+}
+
+def clean_precios_gama(df):
+    for gama, precio_max in precios_max_gama.items():
+        #eliminar los datos
+        df = df.drop(df[(df['Gama'] == gama) & (df['Precio'] > precio_max)].index)
+        df.reset_index(drop=True, inplace=True)
+    return df
 

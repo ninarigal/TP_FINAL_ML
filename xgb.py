@@ -46,7 +46,35 @@ def xgboost(data, target):
     X_train, X_test, Y_train, Y_test = xgb.train_test_split(data)
     xgb.fit(X_train, Y_train)
     Y_pred = xgb.predict(X_test)
-    
+
+    for i in range(len(Y_pred)):
+        if (np.abs(Y_test.iloc[i] - Y_pred[i]) > 50000):
+            print(f'Real: {Y_test.iloc[i]}, Predicción: {Y_pred[i]}')
+            print(f'Diferencia: {Y_test.iloc[i] - Y_pred[i]}')
+            
+            # Obtener el índice del conjunto de prueba
+            idx = X_test.index[i]
+            
+            # Obtener el modelo del auto
+            dummies_modelo = data.filter(like='Modelo').columns
+            for modelo in dummies_modelo:
+                if data[modelo].iloc[idx] == 1:
+                    print(f'Modelo: {modelo}')
+                    
+            # Obtener la marca del auto
+            dummies_marca = data.filter(like='Marca').columns
+            for marca in dummies_marca:
+                if data[marca].iloc[idx] == 1:
+                    print(f'Marca: {marca}')
+            
+            # Obtener la versión del auto
+            dummies_version = data.filter(like='Versión final').columns
+            for version in dummies_version:
+                if data[version].iloc[idx] == 1:
+                    print(f'Versión: {version}')
+            print('Edad: ', data['Edad'].iloc[idx])
+            print('')
+
     #for i in range(len(Y_test)):
     #    print(f'Real: {y_test.iloc[i]}, Predicción: {y_preds[i]}')
        # if (Y_test.iloc[i] - Y_pred[i] > 10000):
