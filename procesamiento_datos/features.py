@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def new_features(df, mode):
+def add_features(df, mode):
     df = assign_gamas(df)
     df = clean_precios_gama(df, mode)
     df = create_km_per_year(df)
+    
     return df
 
 
