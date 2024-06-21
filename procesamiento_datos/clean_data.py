@@ -40,6 +40,10 @@ def create_year_column(df, mode, current_year=2024):
     df['Año'] = pd.to_numeric(df['Año'], errors='coerce')
     df.dropna(subset=['Año'], inplace=True)
     df['Edad'] = current_year - df['Año']
+    df['Edad'] = pd.to_numeric(df['Edad'], errors='coerce')
+    df.dropna(subset=['Edad'], inplace=True)
+    df['Kilómetros'] = pd.to_numeric(df['Kilómetros'], errors='coerce')
+    df.dropna(subset=['Kilómetros'], inplace=True)
     for i in range(len(df)):
         if df.loc[i, 'Edad'] < 0 or df.loc[i, 'Edad'] > 100:
                 df.loc[i, 'Edad'] = int(df.loc[i, 'Kilómetros'] /10000)
@@ -48,7 +52,7 @@ def create_year_column(df, mode, current_year=2024):
         for e in etron.index:
             if df['Edad'][e] == 2:
                 df = df.drop(e)
-        df.reset_index(drop=True, inplace=True)
+    df.reset_index(drop=True, inplace=True)
     return df
 
 def clean_transmission(df):
@@ -434,7 +438,7 @@ def clean_motores(df):
         
 # def main():
 #     df = pd.read_csv("pf_suvs_i302_1s2024.csv")
-#     df = clean_dataset(df, 'train')
+#     df = clean_dataset(df, 'test')
 #     df.to_csv("cleaned_data.csv", index=False)
 #     print("Data cleaned and saved")
 
