@@ -69,6 +69,7 @@ def convert_to_dollars(df, dollar=1045):
     for i in range(len(df)):
         if df['Moneda'][i] == '$':
             df.loc[i, 'Precio'] = df.loc[i, 'Precio'] / dollar # 1 peso = 1045 dolars (9th may 2024)
+    df.reset_index(drop=True, inplace=True)
     return df
 
 def clean_marcas(df):
