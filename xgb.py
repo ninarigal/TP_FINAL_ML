@@ -7,6 +7,12 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 
+#CROSS VALIDATION SCORE
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import make_scorer, mean_squared_error
+
 class XGBoost:
     def __init__(self, features, target):
         self.features = features
@@ -28,7 +34,7 @@ class XGBoost:
     def train_test_split(self, data):
         X = data[self.features]
         Y = data[self.target]
-        return train_test_split(X, Y, test_size=0.3, random_state=0)
+        return train_test_split(X, Y, test_size=0.3, random_state=31)
     
     def plot(self, y_test, y_preds):
         plt.scatter(y_test, y_preds, color='black', alpha=0.5, s=10, )
@@ -72,17 +78,25 @@ def xgboost(data, target):
             for version in dummies_version:
                 if data[version].iloc[idx] == 1:
                     print(f'Versión: {version}')
-            print('Edad: ', data['Edad'].iloc[idx])
+           # print('Edad: ', data['Edad'].iloc[idx])
             print('')
+ 
 
-    #for i in range(len(Y_test)):
-    #    print(f'Real: {y_test.iloc[i]}, Predicción: {y_preds[i]}')
-       # if (Y_test.iloc[i] - Y_pred[i] > 10000):
-        #    print(f'Real: {Y_test.iloc[i]}, Predicción: {Y_pred[i]}')
-        #    print(f'Diferencia: {Y_test.iloc[i] - Y_pred[i]}')
-            
-           
     mse, r2 = xgb.evaluate(Y_test, Y_pred)
     print(f'Mean Squared Error: {mse}')
     print(f'R2 Score: {r2}')
     xgb.plot(Y_test, Y_pred)
+
+def xgboost_cv(data, target):
+    X = data.drop([target], axis=1)
+    model = XGBRegressor()
+
+    # Validación cruzada
+    scores = cross_val_score(model, X, data[target], cv=5)
+    # Crear un scorer para el MSE
+   
+    # Mostrar los scores de cada pliegue
+    print("Cross-validation scores:", scores)
+
+    # Mostrar el score promedio
+    print("Mean cross-validation score:", scores.mean())

@@ -100,7 +100,18 @@ def clean_marcas(df):
         if score > 70: 
             return closest_match
         return brand
-    df['Marca'] = df['Marca'].apply(get_closest_brand)
+
+    #quiero quedarme con las marcas que no estan en la lista marcas
+    # Obtener las marcas que no están en la lista de marcas conocidas
+    marcas_para_revisar = df[~df['Marca'].isin(marcas)]['Marca'].copy()
+
+    # Aplicar la función para encontrar la marca más cercana
+    marcas_actualizadas = marcas_para_revisar.apply(lambda x: get_closest_brand(x))
+
+    # Actualizar el DataFrame original
+    df.loc[~df['Marca'].isin(marcas), 'Marca'] = marcas_actualizadas
+    
+    #df['Marca'] = df['Marca'].apply(get_closest_brand)
 
     return df
 
