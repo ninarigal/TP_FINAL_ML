@@ -37,16 +37,15 @@ def remove_special_characters(df):
     return df
 
 def create_year_column(df, mode, current_year=2024):
-    df['Año'] = pd.to_numeric(df['Año'], errors='coerce')
-    df.dropna(subset=['Año'], inplace=True)
+    #df['Año'] = pd.to_numeric(df['Año'], errors='coerce')
+    #df.dropna(subset=['Año'], inplace=True)
+    df['Año'] = df['Año'].astype(float)
+
     df['Edad'] = current_year - df['Año']
-    df['Edad'] = pd.to_numeric(df['Edad'], errors='coerce')
-    df.dropna(subset=['Edad'], inplace=True)
-    df['Kilómetros'] = pd.to_numeric(df['Kilómetros'], errors='coerce')
-    df.dropna(subset=['Kilómetros'], inplace=True)
-    for i in range(len(df)):
-        if df.loc[i, 'Edad'] < 0 or df.loc[i, 'Edad'] > 100:
-                df.loc[i, 'Edad'] = int(df.loc[i, 'Kilómetros'] /10000)
+    #df['Edad'] = pd.to_numeric(df['Edad'], errors='coerce')
+    #df.dropna(subset=['Edad'], inplace=True)
+
+
     if mode == 'train':
         etron = df[df['Modelo'] == 'etron']
         for e in etron.index:
@@ -64,8 +63,9 @@ def clean_transmission(df):
     return df
 
 def convert_to_dollars(df, dollar=1045):
-    df['Precio'] = pd.to_numeric(df['Precio'], errors='coerce')
-    df.dropna(subset=['Precio'], inplace=True)
+    #df['Precio'] = pd.to_numeric(df['Precio'], errors='coerce')
+    #df.dropna(subset=['Precio'], inplace=True)
+    df['Precio'] = df['Precio'].astype(float)
     for i in range(len(df)):
         if df['Moneda'][i] == '$':
             df.loc[i, 'Precio'] = df.loc[i, 'Precio'] / dollar # 1 peso = 1045 dolars (9th may 2024)
@@ -154,6 +154,9 @@ def clean_km(df):
     for i in range(len(df)):
         if df['Kilómetros'][i] in [111, 1111, 11111, 111111, 1111111, 99999, 999999, 9999999]:
             df.loc[i, 'Kilómetros'] = df.loc[i, 'Edad'] * 10000
+    
+        if df.loc[i, 'Edad'] < 0 or df.loc[i, 'Edad'] > 100:
+                df.loc[i, 'Edad'] = int(df.loc[i, 'Kilómetros'] /10000)
     return df
 
 def clean_año(df, mode, current_year=2024):
