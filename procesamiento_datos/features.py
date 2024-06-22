@@ -1,12 +1,18 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import OneHotEncoder
+import joblib
 
 def add_features(df, mode):
     df = assign_gamas(df)
     df = clean_precios_gama(df, mode)
     df = create_km_per_year(df)
-    
+    if mode == 'train':
+        name = 'data_dev.csv'
+    else:
+        name = 'data_test.csv'
+    df.to_csv(name, index=False)
     return df
 
 
@@ -48,3 +54,20 @@ def create_km_per_year(df):
         else:
             df.loc[i, 'Kilómetros_Edad'] = df.loc[i, 'Kilómetros'] / df.loc[i, 'Edad']
     return df
+
+
+def encode_and_concat(data, encoder, features):
+    encoded_features = encoder.transform(data[features])
+    encoded_df = pd.DataFrame(encoded_features.toarray(), columns=encoder.get_feature_names_out(features))
+    return pd.concat([data.drop(columns=features), encoded_df], axis=1)
+
+def one_hot_encoding(data, features, mode='train', encoder_file='ohe.pkl'):
+    if mode == 'train':
+        encoder = OneHotEncoder(handle_unknown='ignore')
+        encoder.fit(data[features])
+        data = encode_and_concat(data, encoder, features)
+        joblib.dump(encoder, encoder_file)
+    else:
+        encoder = joblib.load(encoder_file)
+        data = encode_and_concat(data, encoder, features)
+    return data
