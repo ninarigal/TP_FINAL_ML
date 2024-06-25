@@ -57,6 +57,7 @@ def create_year_column(df, mode, current_year=2024):
 def clean_transmission(df):
     # VER DE LOS QUE NO ESTAN ASIGNADOS SI POR EJEMPLO EN EL TITULO TIENE UN AT O MT
     df['Transmisión'] = df['Transmisión'].replace('semiautomatica', 'automatica secuencial')
+    df['Transmisión'] = df['Transmisión'].replace('automatica secuencial', 'automatica')
     for i in range(len(df)):
         if df['Transmisión'][i] != 'manual' and df['Transmisión'][i] != 'automatica secuencial' and df['Transmisión'][i] != 'automatica':
             df.loc[i, 'Transmisión'] = 'automatica'
@@ -137,6 +138,8 @@ def clean_marcas(df):
 def clean_modelos(df):
     df['Modelo'] = df['Modelo'].replace('7', 'ds7')
     df['Modelo'] = df['Modelo'].replace('ml', 'clase ml')
+    df['Modelo'] = df['Modelo'].replace('clase e', 'clase gle')
+    df['Modelo'] = df['Modelo'].replace('coupe', 'clase glc')
     return df
 
 def clean_precios(df, mode):
