@@ -87,8 +87,8 @@ while not success:
 
         idx = data[data['Modelo'].isin(modelos_uno)].index
         print("Modelos con un solo auto:", data.loc[idx, 'Modelo'].unique)
-        X_train = pd.concat([X_train, data.loc[idx]], ignore_index=True)
-        y_train = pd.concat([y_train, data.loc[idx]], ignore_index=True)
+        X_train = pd.concat([X_train, data.loc[idx].drop('Precio', axis=1)], ignore_index=True)
+        y_train = pd.concat([y_train, data.loc[idx, 'Precio']], ignore_index=True)
 
         valid_models = set(X_valid['Modelo'].unique())
         train_models = set(X_train['Modelo'].unique())
@@ -97,6 +97,16 @@ while not success:
 print("Modelos en el conjunto de entrenamiento:", train_models)
 print("Modelos en el conjunto de prueba:", valid_models)
 print("Cada conjunto contiene al menos un auto de cada modelo")
+
+#quiero guardar x e y
+print(X_train.shape)
+print(y_train.shape)
+print(X_valid.shape)
+print(y_valid.shape)
+X_train['Precio'] = y_train
+X_valid['Precio'] = y_valid
+print(X_train.shape)
+print(X_valid.shape)
 
 # Guardar los conjuntos de entrenamiento y prueba
 X_train.to_csv('data_train.csv', index=False)
