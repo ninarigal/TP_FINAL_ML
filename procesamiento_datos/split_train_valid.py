@@ -3,6 +3,7 @@ from sklearn.model_selection import GroupShuffleSplit
 from sklearn.model_selection import train_test_split
 
 
+
 file_path = r'data_dev.csv'
 data = pd.read_csv(file_path)
 # Definir las características y la variable objetivo
