@@ -8,11 +8,21 @@ def add_features(df, mode):
     df = assign_gamas(df)
     df = clean_precios_gama(df, mode)
     df = create_km_per_year(df)
-    if mode == 'train':
-        name = 'data_dev.csv'
-    else:
-        name = 'data_test.csv'
-    df.to_csv(name, index=False)
+    df = create_km2(df)
+    df = create_edad2(df)
+    df = create_km_edad(df)
+    df = create_log_km(df)
+    df = create_log_edad(df)
+
+
+    print(df.head())
+
+    # if mode == 'train':
+    #     name = 'data_dev.csv'
+    # else:
+    #     name = 'data_test.csv'
+    
+    # df.to_csv(name, index=False)
     return df
 
 
@@ -71,3 +81,23 @@ def one_hot_encoding(data, features, mode='train', encoder_file='ohe.pkl'):
         encoder = joblib.load(encoder_file)
         data = encode_and_concat(data, encoder, features)
     return data
+
+def create_km2(df):
+    df['Kilómetros2'] = df['Kilómetros'] ** 2
+    return df
+
+def create_edad2(df):
+    df['Edad2'] = df['Edad'] ** 2
+    return df
+
+def create_km_edad(df):
+    df['Km_Edad'] = df['Kilómetros'] * df['Edad']
+    return df
+
+def create_log_km(df):
+    df['Log_Kilómetros'] = np.log(df['Kilómetros'] + 1)
+    return df
+
+def create_log_edad(df):
+    df['Log_Edad'] = np.log(df['Edad'] + 1)
+    return df

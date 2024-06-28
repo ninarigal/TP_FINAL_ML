@@ -60,7 +60,12 @@ def clean_transmission(df):
     df['Transmisión'] = df['Transmisión'].replace('automatica secuencial', 'automatica')
     for i in range(len(df)):
         if df['Transmisión'][i] != 'manual' and df['Transmisión'][i] != 'automatica secuencial' and df['Transmisión'][i] != 'automatica':
-            df.loc[i, 'Transmisión'] = 'automatica'
+            if 'at' in df['Título'][i] or '5at' in df['Título'][i] or 'aut' in df['Título'][i]:
+                df.loc[i, 'Transmisión'] = 'automatica'
+            elif 'mt' in df['Título'][i]:
+                df.loc[i, 'Transmisión'] = 'manual'
+            else: 
+                df.loc[i, 'Transmisión'] = 'automatica'
     return df
 
 def convert_to_dollars(df, dollar=1045):

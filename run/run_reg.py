@@ -5,8 +5,9 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # from xgboost_model import xgboost, xgboost_cv
 from procesamiento_datos.features import one_hot_encoding
-from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.linear_model import LinearRegression
+
 
 def main():
 
@@ -25,10 +26,11 @@ def main():
     data_train.drop(['Título'], axis=1, inplace=True)
     data_train.drop(['Color'], axis=1, inplace=True)
     # data_train.drop(['Kilómetros2'], axis=1, inplace=True)
-    data_train.drop(['Edad2'], axis=1, inplace=True)
-    data_train.drop(['Km_Edad'], axis=1, inplace=True)
-    data_train.drop(['Log_Kilómetros'], axis=1, inplace=True)
-    data_train.drop(['Log_Edad'], axis=1, inplace=True)
+    # data_train.drop(['Edad2'], axis=1, inplace=True)
+    # data_train.drop(['Km_Edad'], axis=1, inplace=True)
+    # data_train.drop(['Log_Kilómetros'], axis=1, inplace=True)
+    # data_train.drop(['Log_Edad'], axis=1, inplace=True)
+
 
 
 
@@ -39,10 +41,10 @@ def main():
     data_valid.drop(['Título'], axis=1, inplace=True)
     data_valid.drop(['Color'], axis=1, inplace=True)
     # data_valid.drop(['Kilómetros2'], axis=1, inplace=True)
-    data_valid.drop(['Edad2'], axis=1, inplace=True)
-    data_valid.drop(['Km_Edad'], axis=1, inplace=True)
-    data_valid.drop(['Log_Kilómetros'], axis=1, inplace=True)
-    data_valid.drop(['Log_Edad'], axis=1, inplace=True)   
+    # data_valid.drop(['Edad2'], axis=1, inplace=True)
+    # data_valid.drop(['Km_Edad'], axis=1, inplace=True)
+    # data_valid.drop(['Log_Kilómetros'], axis=1, inplace=True)
+    # data_valid.drop(['Log_Edad'], axis=1, inplace=True)
 
 
 
@@ -52,13 +54,14 @@ def main():
     y_valid = data_valid['Precio']
 
 
+    model = LinearRegression()
 
 
-    #best_hparams = {'subsample': 0.6, 'n_estimators': 500, 'min_child_weight': 5, 'max_depth': 9, 'learning_rate': 0.12, 'gamma': 0.25, 'colsample_bytree': 0.9}
-    best_hparams = {'subsample': 0.5, 'n_estimators': 500, 'min_child_weight': 3, 'max_depth': 7, 'learning_rate': 0.18, 'gamma': 0.1, 'colsample_bytree': 0.7}
+    # #best_hparams = {'subsample': 0.6, 'n_estimators': 500, 'min_child_weight': 5, 'max_depth': 9, 'learning_rate': 0.12, 'gamma': 0.25, 'colsample_bytree': 0.9}
+    # best_hparams = {'subsample': 0.5, 'n_estimators': 500, 'min_child_weight': 3, 'max_depth': 7, 'learning_rate': 0.18, 'gamma': 0.1, 'colsample_bytree': 0.7}
 
 
-    model = XGBRegressor(**best_hparams)
+    # model = LinearRegression(**best_hparams)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_valid)
     mse = mean_squared_error(y_valid, y_pred)
@@ -84,4 +87,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
