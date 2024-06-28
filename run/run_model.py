@@ -5,11 +5,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # from xgboost_model import xgboost, xgboost_cv
 from procesamiento_datos.features import one_hot_encoding
-from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import KFold
-from sklearn.metrics import make_scorer, mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score
 
 def main():
 
@@ -29,35 +26,24 @@ def main():
     data_train.drop(['Color'], axis=1, inplace=True)
 
 
-    data_valid = one_hot_encoding(data_valid, categorical_columns, mode='train')
+    data_valid = one_hot_encoding(data_valid, categorical_columns, mode='test')
     data_valid.drop(['Versión'], axis=1, inplace=True)
     data_valid.drop(['Motor'], axis=1, inplace=True)
     data_valid.drop(['Tipo de vendedor'], axis=1, inplace=True)
     data_valid.drop(['Título'], axis=1, inplace=True)
     data_valid.drop(['Color'], axis=1, inplace=True)
 
-    # Obtener todas las columnas únicas de ambos DataFrames
-    all_columns = sorted(set(data_train.columns).union(set(data_valid.columns)))
-
-    # Crear DataFrames vacíos con todas las columnas
-    df_train_full = pd.DataFrame(columns=all_columns)
-    df_valid_full = pd.DataFrame(columns=all_columns)
-
-    # Combinar los DataFrames originales con los DataFrames completos
-    df_train_full = pd.concat([df_train_full, data_train], ignore_index=True).fillna(0)
-    df_valid_full = pd.concat([df_valid_full, data_valid], ignore_index=True).fillna(0)
-
-    # Asegurarse de que las columnas estén en el mismo orden
-    df_train_full = df_train_full[all_columns]
-    df_valid_full = df_valid_full[all_columns]
-
-    X_train = df_train_full.drop(['Precio'], axis=1)
-    y_train = df_train_full['Precio']
-    X_valid = df_valid_full.drop(['Precio'], axis=1)
-    y_valid = df_valid_full['Precio']
 
 
-    best_hparams = {'subsample': 0.6, 'n_estimators': 500, 'min_child_weight': 5, 'max_depth': 9, 'learning_rate': 0.12, 'gamma': 0.25, 'colsample_bytree': 0.9}
+    X_train = data_train.drop(['Precio'], axis=1)
+    y_train = data_train['Precio']
+    X_valid = data_valid.drop(['Precio'], axis=1)
+    y_valid = data_valid['Precio']
+
+
+
+    #best_hparams = {'subsample': 0.6, 'n_estimators': 500, 'min_child_weight': 5, 'max_depth': 9, 'learning_rate': 0.12, 'gamma': 0.25, 'colsample_bytree': 0.9}
+    best_hparams = {'subsample': 0.5, 'n_estimators': 500, 'min_child_weight': 3, 'max_depth': 7, 'learning_rate': 0.18, 'gamma': 0.1, 'colsample_bytree': 0.7}
 
 
     model = XGBRegressor(**best_hparams)
@@ -66,8 +52,14 @@ def main():
     mse = mean_squared_error(y_valid, y_pred)
     r2 = r2_score(y_valid, y_pred)
     for i in range(len(y_pred)):
-        if np.abs(y_pred[i] - y_valid.iloc[i]) > 100000:
+        if np.abs(y_pred[i] - y_valid.iloc[i]) > 20000:
             print(f'Pred: {y_pred[i]} Real: {y_valid.iloc[i]}')
+            #encontrar marca y modelo (estan en one hot encoding)
+            for j in range(len(X_valid.columns)):
+                if X_valid.iloc[i, j] == 1:
+                    print(X_valid.columns[j])
+
+            
 
     print(f'Validation set')
     print(f'MSE: {mse}')
