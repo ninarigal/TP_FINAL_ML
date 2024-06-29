@@ -18,7 +18,17 @@ def main():
 
     categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final']
     data_train = one_hot_encoding(data_train, categorical_columns, mode='train')
-    # print(data.columns)
+    for col in data_train.columns:
+        # if 'Modelo_' in col:
+        #     data_train[col + 'Km_Edad'] = data_train[col] * data_train['Km_Edad']
+        #     data_train[col + '_Edad'] = data_train[col] * data_train['Edad']
+
+        if 'Marca_' in col:
+            data_train[col + 'Edad'] = data_train[col] * data_train['Edad']
+            # data_train[col + 'Edad2'] = data_train[col] * data_train['Edad2']
+
+    
+
     data_train.drop(['Versión'], axis=1, inplace=True)
     data_train.drop(['Motor'], axis=1, inplace=True)
     data_train.drop(['Tipo de vendedor'], axis=1, inplace=True)
@@ -33,6 +43,17 @@ def main():
 
 
     data_valid = one_hot_encoding(data_valid, categorical_columns, mode='test')
+    for col in data_valid.columns:
+        # if 'Modelo_' in col:
+        #     data_valid[col + 'Km_Edad'] = data_valid[col] * data_valid['Km_Edad']
+        #     data_valid[col + '_Edad'] = data_valid[col] * data_valid['Edad']
+        if 'Marca_' in col:
+            data_valid[col + 'Edad'] = data_valid[col] * data_valid['Edad']
+            # data_valid[col + 'Edad2'] = data_valid[col] * data_valid['Edad2']
+
+
+    
+
     data_valid.drop(['Versión'], axis=1, inplace=True)
     data_valid.drop(['Motor'], axis=1, inplace=True)
     data_valid.drop(['Tipo de vendedor'], axis=1, inplace=True)

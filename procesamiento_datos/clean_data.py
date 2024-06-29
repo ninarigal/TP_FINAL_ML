@@ -145,6 +145,10 @@ def clean_modelos(df):
     df['Modelo'] = df['Modelo'].replace('ml', 'clase ml')
     df['Modelo'] = df['Modelo'].replace('clase e', 'clase gle')
     df['Modelo'] = df['Modelo'].replace('coupe', 'clase glc')
+    df['Modelo'] = df['Modelo'].replace('bronco sport', 'bronco')
+    df['Modelo'] = df['Modelo'].replace('c4', 'c4 cactus')
+    df['Modelo'] = df['Modelo'].replace('c3', 'c3 aircross')
+
     return df
 
 def clean_precios(df, mode):
