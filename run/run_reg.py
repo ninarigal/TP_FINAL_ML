@@ -9,118 +9,112 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge, Lasso
 from sklearn.neural_network import MLPRegressor
+import joblib
+import matplotlib.pyplot as plt
+from procesamiento_datos.clean_data import clean_dataset
+from procesamiento_datos.features import add_features
 
+def add_regresion_features(df, categorical_columns, mode='train'):
+    df = one_hot_encoding(df, categorical_columns, mode=mode)
+    new_columns = {}
+    for col in df.columns:
+        if 'Modelo_' in col:
+            new_columns[col + 'Edad'] = df[col] * df['Edad']
+        if 'Marca_' in col:
+            new_columns[col + 'Edad'] = df[col] * df['Edad']
+            new_columns[col + 'Edad2'] = df[col] * df['Edad2']
+        if 'Gama_' in col:
+            new_columns[col + 'Edad'] = df[col] * df['Edad']
+            new_columns[col + 'Edad2'] = df[col] * df['Edad2']
+            new_columns[col + 'Kilómetros2'] = df[col] * df['Kilómetros2']
+        if 'Motor final_' in col:
+            new_columns[col + 'Edad'] = df[col] * df['Edad']
+            new_columns[col + 'Edad2'] = df[col] * df['Edad2']
+        if 'Transmisión_' in col:
+            new_columns[col + 'Edad'] = df[col] * df['Edad']
+            new_columns[col + 'Edad2'] = df[col] * df['Edad2']
+            new_columns[col + 'Kilómetros2'] = df[col] * df['Kilómetros2']
+    new_columns_df = pd.DataFrame(new_columns)
+    df = pd.concat([df, new_columns_df], axis=1)
+    return df
 
+def drop_columns_regresion(df):
+    df.drop(['Versión'], axis=1, inplace=True)
+    df.drop(['Motor'], axis=1, inplace=True)
+    df.drop(['Título'], axis=1, inplace=True)
+    df.drop(['Color'], axis=1, inplace=True)
+    return df
+
+def predict_precio_regresion(model_path, marca, modelo, version, color, transmision, motor, kilometros, titulo, tipo_vendedor, anio, tipo_combustible, tipo_carroceria, puertas, camara_retroceso):
+    auto = {
+        'Marca': marca,
+        'Modelo': modelo,
+        'Versión': version,
+        'Color': color,
+        'Transmisión': transmision,
+        'Motor': motor,
+        'Kilómetros': kilometros,
+        'Título': titulo,
+        'Tipo de vendedor': tipo_vendedor,
+        'Año': anio,
+        'Tipo de combustible': tipo_combustible,
+        'Tipo de carrocería': tipo_carroceria,
+        'Puertas': puertas,
+        'Con cámara de retroceso': camara_retroceso
+    }
+    auto_df = pd.DataFrame(auto, index=[0])
+    auto_df = clean_dataset(auto_df, mode='test')
+    auto_df = add_features(auto_df, mode='test')
+    categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
+    auto_df = add_regresion_features(auto_df, categorical_columns, mode='test')
+    auto_df = drop_columns_regresion(auto_df)
+    model = joblib.load(model_path)
+    precio = model.predict(auto_df)
+    return precio[0]   
 
 def main():
-
     file_path = r'procesamiento_datos/data_train.csv'
     data_train = pd.read_csv(file_path)
-
     file_path = r'procesamiento_datos/data_valid.csv'
     data_valid = pd.read_csv(file_path)
+    categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
+    data_train = add_regresion_features(data_train, categorical_columns, mode='train')
+    data_train = drop_columns_regresion(data_train)
 
-    categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final']
-    data_train = one_hot_encoding(data_train, categorical_columns, mode='train')
-
-    # Crear nuevas columnas de manera eficiente para evitar fragmentación
-    new_columns_train = {}
-    new_columns_valid = {}
-
-    for col in data_train.columns:
-        if 'Modelo_' in col:
-            new_columns_train[col + 'Edad'] = data_train[col] * data_train['Edad']
-            # new_columns_train[col + 'Km_Edad'] = data_train[col] * data_train['Km_Edad']
-            # data_train[col + 'Edad2'] = data_train[col] * data_train['Edad2']
-        if 'Marca_' in col:
-            new_columns_train[col + 'Edad'] = data_train[col] * data_train['Edad']
-            new_columns_train[col + 'Edad2'] = data_train[col] * data_train['Edad2']
-            # new_columns_train[col + 'Kilómetros2'] = data_train[col] * data_train['Kilómetros2']
-        if 'Gama_' in col:
-            new_columns_train[col + 'Edad'] = data_train[col] * data_train['Edad']
-            new_columns_train[col + 'Edad2'] = data_train[col] * data_train['Edad2']
-            new_columns_train[col + 'Kilómetros2'] = data_train[col] * data_train['Kilómetros2']
-            # new_columns_train[col + 'Log_Edad'] = data_train[col] * data_train['Log_Edad']
-        if 'Motor final_' in col:
-            new_columns_train[col + 'Edad'] = data_train[col] * data_train['Edad']
-            new_columns_train[col + 'Edad2'] = data_train[col] * data_train['Edad2']
-            # new_columns_train[col + 'Kilómetros2'] = data_train[col] * data_train['Kilómetros2']
-        if 'Transmisión_' in col:
-            new_columns_train[col + 'Edad'] = data_train[col] * data_train['Edad']
-            new_columns_train[col + 'Edad2'] = data_train[col] * data_train['Edad2']
-            new_columns_train[col + 'Kilómetros2'] = data_train[col] * data_train['Kilómetros2']
-
-
-    # Agregar nuevas columnas al DataFrame de entrenamiento
-    new_columns_train_df = pd.DataFrame(new_columns_train)
-    data_train = pd.concat([data_train, new_columns_train_df], axis=1)
+    data_valid = add_regresion_features(data_valid, categorical_columns, mode='test')                                       
+    data_valid = drop_columns_regresion(data_valid)
     
-    data_train.drop(['Versión'], axis=1, inplace=True)
-    data_train.drop(['Motor'], axis=1, inplace=True)
-    data_train.drop(['Tipo de vendedor'], axis=1, inplace=True)
-    data_train.drop(['Título'], axis=1, inplace=True)
-    data_train.drop(['Color'], axis=1, inplace=True)
-
-
-    data_valid = one_hot_encoding(data_valid, categorical_columns, mode='test')
-    for col in data_valid.columns:
-        if 'Modelo_' in col:
-            new_columns_valid[col + 'Edad'] = data_valid[col] * data_valid['Edad']
-            # new_columns_valid[col + 'Km_Edad'] = data_valid[col] * data_valid['Km_Edad']
-            # data_valid[col + 'Edad2'] = data_valid[col] * data_valid['Edad2']
-        if 'Marca_' in col:
-            new_columns_valid[col + 'Edad'] = data_valid[col] * data_valid['Edad']
-            new_columns_valid[col + 'Edad2'] = data_valid[col] * data_valid['Edad2']
-            # new_columns_valid[col + 'Kilómetros2'] = data_valid[col] * data_valid['Kilómetros2']
-        if 'Gama_' in col:
-            new_columns_valid[col + 'Edad'] = data_valid[col] * data_valid['Edad']
-            new_columns_valid[col + 'Edad2'] = data_valid[col] * data_valid['Edad2']
-            new_columns_valid[col + 'Kilómetros2'] = data_valid[col] * data_valid['Kilómetros2']
-            # new_columns_valid[col + 'Log_Edad'] = data_valid[col] * data_valid['Log_Edad']
-        if 'Motor final_' in col:
-            new_columns_valid[col + 'Edad'] = data_valid[col] * data_valid['Edad']
-            new_columns_valid[col + 'Edad2'] = data_valid[col] * data_valid['Edad2']
-            # new_columns_valid[col + 'Kilómetros2'] = data_valid[col] * data_valid['Kilómetros2']
-        if 'Transmisión_' in col:
-            new_columns_valid[col + 'Edad'] = data_valid[col] * data_valid['Edad']
-            new_columns_valid[col + 'Edad2'] = data_valid[col] * data_valid['Edad2']
-            new_columns_valid[col + 'Kilómetros2'] = data_valid[col] * data_valid['Kilómetros2']
-
-    # Agregar nuevas columnas al DataFrame de validación
-    new_columns_valid_df = pd.DataFrame(new_columns_valid)
-    data_valid = pd.concat([data_valid, new_columns_valid_df], axis=1)
-                                              
-
-    data_valid.drop(['Versión'], axis=1, inplace=True)
-    data_valid.drop(['Motor'], axis=1, inplace=True)
-    data_valid.drop(['Tipo de vendedor'], axis=1, inplace=True)
-    data_valid.drop(['Título'], axis=1, inplace=True)
-    data_valid.drop(['Color'], axis=1, inplace=True)
-
     X_train = data_train.drop(['Precio'], axis=1)
     y_train = data_train['Precio']
     X_valid = data_valid.drop(['Precio'], axis=1)
     y_valid = data_valid['Precio']
 
-
-    # model = LinearRegression()
-    # model = Ridge(alpha=1.0, random_state=42)
-    model = Lasso(alpha=0.1, max_iter=10000, random_state=42)
-
-
+    model = Lasso(alpha=1, max_iter=10000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_valid)
     mse = mean_squared_error(y_valid, y_pred)
     r2 = r2_score(y_valid, y_pred)
-    # for i in range(len(y_pred)):
-    #     if np.abs(y_pred[i] - y_valid.iloc[i]) > 20000:
-    #         print(f'Pred: {y_pred[i]} Real: {y_valid.iloc[i]}')
-    #         #encontrar marca y modelo (estan en one hot encoding)
-    #         for j in range(len(X_valid.columns)):
-    #             if X_valid.iloc[i, j] == 1:
-    #                 print(X_valid.columns[j])
 
+    plt.scatter(y_valid, y_pred)
+    plt.xlabel('Real')
+    plt.ylabel('Predicción')
+    plt.title('Predicción vs Real')
+    plt.plot([0, 300000], [0, 300000], color='red')
+    plt.show()
+
+    print(f'Validation set')
+    print(f'MSE: {mse}')
+    print(f'RMSE: {np.sqrt(mse)}')
+    print(f'R2: {r2}')
+    print(f'MAE: {np.mean(np.abs(y_pred - y_valid))}')
+    print()
+    # save model as pkl
+    joblib.dump(model, 'models/model_reg.pkl')
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    model_path = 'models/model_reg.pkl'
+    print("Precio estimado: ", predict_precio_regresion(model_path, 'Volkswagen', 'Golf', '1.0 Highline', 'Gris', 'Automática', 1.0, 58000, 'Golf Highline 1.0 2020', 'Particular', 2020, 'Nafta', 'Hatchback', 'Media', 'Sí'))
+
+
