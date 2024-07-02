@@ -18,6 +18,12 @@ if __name__ == '__main__':
     data_dev.to_csv('data_dev.csv', index=False)
     data_test.to_csv('data_test.csv', index=False)
 
+    # # separo en train y valid
+    # data_train = data_dev.sample(frac=0.8, random_state=0)
+    # data_valid = data_dev.drop(data_train.index)
+    # data_train.to_csv('data_train.csv', index=False)
+    # data_valid.to_csv('data_valid.csv', index=False)
+
 
 
 

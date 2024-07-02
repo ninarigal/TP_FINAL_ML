@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from procesamiento_datos.features import one_hot_encoding
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import Ridge, Lasso
+from sklearn.linear_model import Ridge, Lasso, ElasticNet
 from sklearn.neural_network import MLPRegressor
 import joblib
 import matplotlib.pyplot as plt
@@ -89,7 +89,7 @@ def main():
     X_valid = data_valid.drop(['Precio'], axis=1)
     y_valid = data_valid['Precio']
 
-    model = Lasso(alpha=1, max_iter=30000, random_state=42)
+    model = Lasso(alpha=1, max_iter=10000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_valid)
     mse = mean_squared_error(y_valid, y_pred)
@@ -113,8 +113,30 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-    # model_path = 'models/model_reg.pkl'
+    # main()
+    model_path = 'models/model_reg.pkl'
     # print("Precio estimado: ", predict_precio_regresion(model_path, 'Volkswagen', 'Golf', '1.0 Highline', 'Gris', 'Automática', 1.0, 58000, 'Golf Highline 1.0 2020', 'Particular', 2020, 'Nafta', 'Hatchback', 'Media', 'Sí'))
+    data_test = pd.read_csv('procesamiento_datos/data_test.csv')
+    data_test = add_regresion_features(data_test, ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor'], mode='test')
+    data_test = drop_columns_regresion(data_test)
+    X_test = data_test.drop(['Precio'], axis=1)
+    y_test = data_test['Precio']
+    model = joblib.load(model_path)
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    print(f'Test set')
+    print(f'MSE: {mse}')
+    print(f'RMSE: {np.sqrt(mse)}')
+    print(f'R2: {r2}')
+    print(f'MAE: {np.mean(np.abs(y_pred - y_test))}')
+    print()
+    plt.scatter(y_test, y_pred)
+    plt.xlabel('Real')
+    plt.ylabel('Predicción')
+    plt.title('Predicción vs Real')
+    plt.plot([0, 300000], [0, 300000], color='red')
+    plt.show()
+
 
 

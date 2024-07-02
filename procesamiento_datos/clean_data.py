@@ -156,7 +156,7 @@ def clean_precios(df, mode):
         df.reset_index(drop=True, inplace=True)
     return df
 
-def clean_km(df):
+def clean_km(df, mode='train'):
     df['Kilómetros'] = df['Kilómetros'].replace(' km', '', regex=True).astype(int)
     for i in range(len(df)):
         if df['Kilómetros'][i] in [111, 1111, 11111, 111111, 1111111, 99999, 999999, 9999999]:
@@ -164,6 +164,10 @@ def clean_km(df):
     
         if df.loc[i, 'Edad'] < 0 or df.loc[i, 'Edad'] > 100:
                 df.loc[i, 'Edad'] = int(df.loc[i, 'Kilómetros'] /10000)
+
+        if df['Kilómetros'][i] > 100000 and df['Edad'][i] < 3:
+            df.loc[i, 'Kilómetros'] = df.loc[i, 'Edad'] * 10000
+            
     return df
 
 def clean_año(df, mode, current_year=2024):
