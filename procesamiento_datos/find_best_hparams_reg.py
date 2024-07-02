@@ -59,7 +59,7 @@ def main():
     model = Lasso(max_iter=10000, random_state=42)
 
     # # Perform grid search
-    grid_search = GridSearchCV(estimator=model, param_grid=param_grid_important, cv=5, scoring='neg_mean_squared_error', verbose=3)
+    grid_search = GridSearchCV(estimator=model, param_grid=param_grid_important, cv=3, scoring='neg_mean_squared_error', verbose=3)
     grid_search.fit(X_dev, Y_dev)
 
     # Get the best model

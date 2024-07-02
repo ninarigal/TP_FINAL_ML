@@ -13,16 +13,7 @@ def add_features(df, mode):
     df = create_km_edad(df)
     df = create_log_km(df)
     df = create_log_edad(df)
-
-
-    print(df.head())
-
-    # if mode == 'train':
-    #     name = 'data_dev.csv'
-    # else:
-    #     name = 'data_test.csv'
-    
-    # df.to_csv(name, index=False)
+    df = create_color_extraño(df)
     return df
 
 
@@ -36,7 +27,11 @@ def assign_gamas(df):
     gama_baja = ['fiat', 'ssangyong', 'chevrolet', 'isuzu', 'suzuki', 'haval', 'dodge', 'lifan', 
              'jac', 'chery', 'baic', 'jetour', 'geely', 'daihatsu']
     
-    df['Gama'] = np.nan
+    # df['Gama'] = np.nan
+    if 'Gama' not in df.columns:
+        df['Gama'] = pd.Series(dtype='object')
+    else:
+        df['Gama'] = df['Gama'].astype('object')
     df.loc[df['Marca'].isin(gama_lujo), 'Gama'] = 'Lujo'
     df.loc[df['Marca'].isin(gama_media), 'Gama'] = 'Media'
     df.loc[df['Marca'].isin(gama_baja), 'Gama'] = 'Baja'
@@ -100,4 +95,11 @@ def create_log_km(df):
 
 def create_log_edad(df):
     df['Log_Edad'] = np.log(df['Edad'] + 1)
+    return df
+
+def create_color_extraño(df):
+    colores_extraños = ['marrón', 'rojo', 'verde', 'azul', 'naranja', 'amarillo', 'dorado', 'violeta', 
+                        'ocre', 'rosa', 'celeste', 'cafe', 'orange', 'blue']
+    df['Color'] = df['Color'].apply(lambda x: x.replace('_', ' '))
+    df['Color_extraño'] = df['Color'].apply(lambda x: 1 if x in colores_extraños else 0)
     return df

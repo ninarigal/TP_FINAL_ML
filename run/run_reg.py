@@ -89,7 +89,7 @@ def main():
     X_valid = data_valid.drop(['Precio'], axis=1)
     y_valid = data_valid['Precio']
 
-    model = Lasso(alpha=1, max_iter=10000, random_state=42)
+    model = Lasso(alpha=1, max_iter=30000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_valid)
     mse = mean_squared_error(y_valid, y_pred)
@@ -113,8 +113,8 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    model_path = 'models/model_reg.pkl'
-    print("Precio estimado: ", predict_precio_regresion(model_path, 'Volkswagen', 'Golf', '1.0 Highline', 'Gris', 'Automática', 1.0, 58000, 'Golf Highline 1.0 2020', 'Particular', 2020, 'Nafta', 'Hatchback', 'Media', 'Sí'))
+    main()
+    # model_path = 'models/model_reg.pkl'
+    # print("Precio estimado: ", predict_precio_regresion(model_path, 'Volkswagen', 'Golf', '1.0 Highline', 'Gris', 'Automática', 1.0, 58000, 'Golf Highline 1.0 2020', 'Particular', 2020, 'Nafta', 'Hatchback', 'Media', 'Sí'))
 
 

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 from fuzzywuzzy import process
+import difflib
 
 def clean_dataset(df, mode): 
     df = to_lower_case(df)
@@ -14,13 +15,14 @@ def clean_dataset(df, mode):
     df = create_year_column(df, mode)
 
     df = clean_transmission(df)
-    df = convert_to_dollars(df)
-    df = clean_precios(df, mode)
+    if 'Precio' in df.columns:
+        df = convert_to_dollars(df)
+        df = clean_precios(df, mode)
+        df = df.drop(columns=['Moneda'])
     df = clean_km(df)
-    
     df = clean_versiones(df)
     df = clean_motores(df)
-    df = df.drop(columns=[ 'Tipo de combustible', 'Tipo de carrocería', 'Con cámara de retroceso', 'Puertas', 'Año', 'Moneda', 'Título versión', 'TV', 'Título versión motor'])
+    df = df.drop(columns=[ 'Tipo de combustible', 'Tipo de carrocería', 'Con cámara de retroceso', 'Puertas', 'Año', 'Título versión', 'TV', 'Título versión motor'])
     return df 
 
 def to_lower_case(df):
@@ -75,7 +77,7 @@ def convert_to_dollars(df, dollar=1045):
     for i in range(len(df)):
         if df['Moneda'][i] == '$':
             df.loc[i, 'Precio'] = df.loc[i, 'Precio'] / dollar # 1 peso = 1045 dolars (9th may 2024)
-    df.reset_index(drop=True, inplace=True)
+    df.reset_index(drop=True, inplace=True)                
     return df
 
 def clean_marcas(df):
@@ -99,47 +101,6 @@ def clean_marcas(df):
     df.loc[~df['Marca'].isin(marcas), 'Marca'] = marcas_actualizadas
     return df
 
-# def clean_modelos(df):
-#     #cambiar lo de los C3 aircross 
-#     modelos = ['2008', '208', '3008', '4008', '4runner', '5008', '500x', 'ds7',
-#        'actyon', 'agile', 'aircross', 'amigo', 'blazer', 'bronco',
-#        'bronco sport', 'chr', 'c3', 'c3 aircross', 'c4', 'c4 aircross',
-#        'c4 cactus', 'c5 aircross', 'captiva', 'captur', 'cayenne',
-#        'cherokee', 'clase e', 'clase gl', 'clase gla', 'clase glb',
-#        'clase glc', 'clase gle', 'clase glk', 'clase ml', 'commander',
-#        'compass', 'cooper countryman', 'corolla cross', 'countryman',
-#        'coupe', 'crv', 'creta', 'crossfox', 'defender', 'discovery',
-#        'ds3', 'duster', 'duster oroch', 'etron',
-#        'ecosport', 'emgrand x7 sport', 'equinox', 'evoque', 'explorer',
-#        'fpace', 'feroza', 'forester', 'freelander', 'galloper',
-#        'grand blazer', 'grand cherokee', 'grand santa fe', 'grand vitara',
-#        'h1', 'h6', 'hilux', 'hilux sw4', 'hrv', 'jimny', 'jolion',
-#        'journey', 'kangoo', 'kicks', 'koleos', 'kona', 'kuga',
-#        'land cruiser', 'lx', 'macan', 'mohave', 'montero', 'murano',
-#        'musso', 'mustang', 'myway', 'nativa', 'nivus', 'nx', 'oroch',
-#        'outback', 'outlander', 'panamera', 'pathfinder', 'patriot',
-#        'pilot', 'pulse', 'q2', 'q3', 'q3 sportback', 'q5', 'q5 sportback',
-#        'q7', 'q8', 'range rover', 'range rover sport', 'rav4', 'renegade',
-#        'rodeo', 's2', 's5', 'samurai', 'sandero', 'sandero stepway',
-#        'santa fe', 'seltos', 'serie 4', 'sorento', 'soul', 'spin',
-#        'sportage', 'sq5', 'stelvio', 'suran', 'sw4', 'tcross', 'taos',
-#        'terios', 'terrano ii', 'territory', 'tiggo', 'tiggo 2', 'tiggo 3',
-#        'tiggo 4', 'tiggo 4 pro', 'tiggo 5', 'tiggo 8 pro', 'tiguan',
-#        'tiguan allspace', 'touareg', 'tracker', 'trailblazer', 'trooper',
-#        'tucson', 'ux', 'veracruz', 'vitara', 'wrangler', 'xterra',
-#        'xtrail', 'x1', 'x2', 'x25', 'x3', 'x35', 'x4', 'x5', 'x55', 'x6',
-#        'x70', 'xc40', 'xc60']
-#     df['Modelo'] = df['Modelo'].replace('7', 'ds7')
-#     # df['Modelo'] = df['Modelo'].replace('ml', 'clase ml')
-#     def get_closest_model(model):
-#         closest_match, score = process.extractOne(model, modelos)
-#         if score > 70: 
-#             return closest_match
-#         return model
-#     df['Modelo'] = df['Modelo'].apply(get_closest_model)
-#     return df
-
-
 def clean_modelos(df):
     df['Modelo'] = df['Modelo'].replace('7', 'ds7')
     df['Modelo'] = df['Modelo'].replace('ml', 'clase ml')
@@ -148,7 +109,41 @@ def clean_modelos(df):
     df['Modelo'] = df['Modelo'].replace('bronco sport', 'bronco')
     df['Modelo'] = df['Modelo'].replace('c4', 'c4 cactus')
     df['Modelo'] = df['Modelo'].replace('c3', 'c3 aircross')
-
+    # modelos = ['2008', '208', '3008', '4008', '4runner', '5008', '500x', 'ds7',
+    #    'actyon', 'agile', 'aircross', 'amigo', 'blazer', 'bronco', 'chr', 'c3 aircross', 'c4 aircross',
+    #    'c4 cactus', 'c5 aircross', 'captiva', 'captur', 'cayenne',
+    #    'cherokee', 'clase gl', 'clase gla', 'clase glb',
+    #    'clase glc', 'clase gle', 'clase glk', 'clase ml', 'commander',
+    #    'compass', 'cooper countryman', 'corolla cross', 'countryman',
+    #    'crv', 'creta', 'crossfox', 'defender', 'discovery',
+    #    'ds3', 'duster', 'duster oroch', 'etron',
+    #    'ecosport', 'emgrand x7 sport', 'equinox', 'evoque', 'explorer',
+    #    'fpace', 'feroza', 'forester', 'freelander', 'galloper',
+    #    'grand blazer', 'grand cherokee', 'grand santa fe', 'grand vitara',
+    #    'h1', 'h6', 'hilux', 'hilux sw4', 'hrv', 'jimny', 'jolion',
+    #    'journey', 'kangoo', 'kicks', 'koleos', 'kona', 'kuga',
+    #    'land cruiser', 'lx', 'macan', 'mohave', 'montero', 'murano',
+    #    'musso', 'mustang', 'myway', 'nativa', 'nivus', 'nx', 'oroch',
+    #    'outback', 'outlander', 'panamera', 'pathfinder', 'patriot',
+    #    'pilot', 'pulse', 'q2', 'q3', 'q3 sportback', 'q5', 'q5 sportback',
+    #    'q7', 'q8', 'range rover', 'range rover sport', 'rav4', 'renegade',
+    #    'rodeo', 's2', 's5', 'samurai', 'sandero', 'sandero stepway',
+    #    'santa fe', 'seltos', 'serie 4', 'sorento', 'soul', 'spin',
+    #    'sportage', 'sq5', 'stelvio', 'suran', 'sw4', 'tcross', 'taos',
+    #    'terios', 'terrano ii', 'territory', 'tiggo', 'tiggo 2', 'tiggo 3',
+    #    'tiggo 4', 'tiggo 4 pro', 'tiggo 5', 'tiggo 8 pro', 'tiguan',
+    #    'tiguan allspace', 'touareg', 'tracker', 'trailblazer', 'trooper',
+    #    'tucson', 'ux', 'veracruz', 'vitara', 'wrangler', 'xterra',
+    #    'xtrail', 'x1', 'x2', 'x25', 'x3', 'x35', 'x4', 'x5', 'x55', 'x6',
+    #    'x70', 'xc40', 'xc60']
+    # def get_closest_model(model):
+    #     closest_match, score = process.extractOne(model, modelos)
+    #     if score > 70: 
+    #         return closest_match
+    #     return model
+    # modelos_para_revisar = df[~df['Marca'].isin(modelos)]['Marca'].copy()
+    # modelos_actualizados = modelos_para_revisar.apply(lambda x: get_closest_model(x))
+    # df.loc[~df['Marca'].isin(modelos), 'Marca'] = modelos_actualizados
     return df
 
 def clean_precios(df, mode):
@@ -194,6 +189,12 @@ def replace(version, keywords, keyword):
         if re.search(rf'\b{k}\b', version):
             return keyword
     return version
+
+def clean_vendedor(df):
+    df['Tipo de vendedor'] = df['Tipo de vendedor'].replace('tienda', 'concesionaria')
+    df['Tipo de vendedor'] = df['Tipo de vendedor'].replace(np.nan, 'particular')
+    return df
+
 
 def clean_versiones(df):
     df['Título versión'] = df['Título'].str.cat(df['Versión'], sep=' ')
