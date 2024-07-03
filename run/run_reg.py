@@ -120,8 +120,8 @@ def main():
 
     y_train = np.log1p(y_train)
 
-    #model = Lasso(alpha=0.00001, max_iter=10000, random_state=42)
-    model = Ridge(alpha=1.3, max_iter=10000, random_state=42)
+   
+    model = Ridge(alpha=1.4, max_iter=10000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_valid)
     y_pred = np.expm1(y_pred)
