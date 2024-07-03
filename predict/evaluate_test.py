@@ -65,7 +65,7 @@ def run_xgb(model_path, cleaned_data):
 
 
 if __name__ == '__main__':
-    model_path_regl2 = 'models/model_reg_L2.pkl'
+    model_path_regl2 = 'models/model_regl2.pkl'
     cleaned_data = pd.read_csv('procesamiento_datos/data_test.csv')
     run_regression_l2(model_path_regl2, cleaned_data)
 
@@ -74,5 +74,5 @@ if __name__ == '__main__':
 
     model_path_xgb = 'models/model_xgb.pkl'
     run_xgb(model_path_xgb, cleaned_data)
-    
+
 
