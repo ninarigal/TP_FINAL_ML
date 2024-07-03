@@ -118,9 +118,12 @@ def main():
     X_valid = data_valid.drop(['Precio'], axis=1)
     y_valid = data_valid['Precio']
 
-    model = Lasso(alpha=1, max_iter=10000, random_state=42)
+    y_train = np.log1p(y_train)
+
+    model = Lasso(alpha=0.00001, max_iter=10000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_valid)
+    y_pred = np.expm1(y_pred)
 
     marcas, rmses = calculate_rmse_by_brand(X_valid, y_valid, y_pred)
     print(marcas)
@@ -149,31 +152,31 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-    # model_path = 'models/model_reg.pkl'
+    #main()
+    model_path = 'models/model_reg.pkl'
     # # print("Precio estimado: ", predict_precio_regresion(model_path, 'Volkswagen', 'Golf', '1.0 Highline', 'Gris', 'Automática', 1.0, '58000 km', 'Golf Highline 1.0 2020', 'Particular', 2020, 'Nafta', 'Hatchback', 'Media', 'Sí'))
-    # data_test = pd.read_csv('procesamiento_datos/data_test.csv')
-    # categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
-    # data_test = add_regresion_features(data_test, categorical_columns, mode='test', encoder_file='procesamiento_datos/ohe.pkl')
-    # data_test = drop_columns_regresion(data_test)
-    # X_test = data_test.drop(['Precio'], axis=1)
-    # y_test = data_test['Precio']
-    # model = joblib.load(model_path)
-    # y_pred = model.predict(X_test)
-    # mse = mean_squared_error(y_test, y_pred)
-    # r2 = r2_score(y_test, y_pred)
-    # print(f'Test set')
-    # print(f'MSE: {mse}')
-    # print(f'RMSE: {np.sqrt(mse)}')
-    # print(f'R2: {r2}')
-    # print(f'MAE: {np.mean(np.abs(y_pred - y_test))}')
-    # print()
-    # plt.scatter(y_test, y_pred)
-    # plt.xlabel('Real')
-    # plt.ylabel('Predicción')
-    # plt.title('Predicción vs Real')
-    # plt.plot([0, 300000], [0, 300000], color='red')
-    # plt.show()
+    data_test = pd.read_csv('procesamiento_datos/data_test.csv')
+    categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
+    data_test = add_regresion_features(data_test, categorical_columns, mode='test', encoder_file='procesamiento_datos/ohe.pkl')
+    data_test = drop_columns_regresion(data_test)
+    X_test = data_test.drop(['Precio'], axis=1)
+    y_test = data_test['Precio']
+    model = joblib.load(model_path)
+    y_pred = np.expm1(model.predict(X_test))
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    print(f'Test set')
+    print(f'MSE: {mse}')
+    print(f'RMSE: {np.sqrt(mse)}')
+    print(f'R2: {r2}')
+    print(f'MAE: {np.mean(np.abs(y_pred - y_test))}')
+    print()
+    plt.scatter(y_test, y_pred)
+    plt.xlabel('Real')
+    plt.ylabel('Predicción')
+    plt.title('Predicción vs Real')
+    plt.plot([0, 300000], [0, 300000], color='red')
+    plt.show()
     # for i in range(len(y_test)):
     #     if abs(y_test.iloc[i] - y_pred[i]) > 50000:
     #         for j in range(len(data_test.columns)):
