@@ -154,7 +154,7 @@ def main():
         file.write(f'RMSE: {np.sqrt(mse)}\n')
         file.write(f'R2: {r2}\n')
     # save model as pkl
-    joblib.dump(model, 'models/model_reg_L2.pkl')
+    joblib.dump(model, 'models/model_regl2.pkl')
 
 
 if __name__ == '__main__':
