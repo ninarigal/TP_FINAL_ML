@@ -179,6 +179,8 @@ if __name__ == '__main__':
     plot_depreciation(prices_rav4, prices_q5, 'Rav4', 'Q5')
     plot_depreciation(depre_rav4, depre_q5, 'Rav4', 'Q5')
 
+    
+
 
 
 
