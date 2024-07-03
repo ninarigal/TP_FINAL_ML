@@ -90,15 +90,26 @@ def calculate_rmse_by_brand(X_valid, y_valid, y_pred):
                 y_pred_mask = y_pred[mask]
                 rmse = np.sqrt(mean_squared_error(y_mask, y_pred_mask))
                 rmses.append(rmse)
+
+    marcas = ['peugeot', 'toyota', 'fiat', 'ds', 'ssangyong', 'chevrolet',
+       'citroen', 'isuzu', 'ford', 'renault', 'porsche', 'jeep',
+       'mbenz', 'mini', 'honda', 'hyundai', 'vw',
+       'l rover', 'audi', 'geely', 'jaguar', 'daihatsu', 'subaru',
+       'suzuki', 'haval', 'dodge', 'nissan', 'lexus', 'kia', 'mitsubishi',
+       'lifan', 'jac', 'bmw', 'a romeo', 'chery', 'baic', 'jetour',
+       'volvo']
+
+        
     return marcas, rmses
 
 def plot_rmse_by_brand(marcas, rmses):
     plt.figure(figsize=(10, 6))
     plt.bar(marcas, rmses)
-    plt.xlabel('Marca')
-    plt.ylabel('RMSE')
-    plt.title('RMSE por marca')
-    plt.xticks(rotation=90)
+    plt.xlabel('Marca', fontsize=14)
+    plt.ylabel('RMSE', fontsize=14)
+    plt.xticks(rotation=90, fontsize=14)
+    plt.tick_params(axis='both', which='major', labelsize=14)
+   
     plt.show()
 
 def main():

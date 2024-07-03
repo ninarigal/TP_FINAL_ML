@@ -26,6 +26,8 @@ def run_regression_l2(model_path, cleaned_data):
     print(f'RMSE: {np.sqrt(mse)}')
     print(f'R2: {r2}')
 
+    plot_results(y_pred, y_test)
+
 def run_regression_l1(model_path, cleaned_data):
     categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
     data_test = add_regresion_features(cleaned_data, categorical_columns, mode='test', encoder_file='procesamiento_datos/ohe.pkl')
@@ -41,6 +43,7 @@ def run_regression_l1(model_path, cleaned_data):
     print(f'RMSE: {np.sqrt(mse)}')
     print(f'R2: {r2}')
 
+
 def run_xgb(model_path, cleaned_data):
     categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
     data_test = one_hot_encoding(cleaned_data, categorical_columns, mode='test', encoder_file='procesamiento_datos/ohe.pkl')
@@ -55,6 +58,15 @@ def run_xgb(model_path, cleaned_data):
     print(f'MSE: {mse}')
     print(f'RMSE: {np.sqrt(mse)}')
     print(f'R2: {r2}')
+
+
+def plot_results(pred, real):
+    plt.scatter(real, pred, c='b', alpha=0.4)
+    plt.xlabel('Real')
+    plt.ylabel('Predicción')
+    plt.plot([0, 300000], [0, 300000], color='red')
+    plt.show()
+
 
 
 

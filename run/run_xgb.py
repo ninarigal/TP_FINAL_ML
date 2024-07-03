@@ -53,6 +53,47 @@ def predict_precio_xgb(model_path, marca, modelo, version, color, transmision, m
     return precio[0] 
 
 
+def calculate_rmse_by_brand(X_valid, y_valid, y_pred):
+    rmses = []
+    marcas = ['peugeot', 'toyota', 'fiat', 'ds', 'ssangyong', 'chevrolet',
+       'citroen', 'isuzu', 'ford', 'renault', 'porsche', 'jeep',
+       'mercedesbenz', 'mini', 'honda', 'hyundai', 'volkswagen',
+       'land rover', 'audi', 'geely', 'jaguar', 'daihatsu', 'subaru',
+       'suzuki', 'haval', 'dodge', 'nissan', 'lexus', 'kia', 'mitsubishi',
+       'lifan', 'jac', 'bmw', 'alfa romeo', 'chery', 'baic', 'jetour',
+       'volvo']
+    for col in X_valid.columns:
+        if col.startswith('Marca_'):
+            marca = col.split('_')[1]
+            if marca in marcas:
+                mask = X_valid[col] == 1
+                y_mask = y_valid[mask]
+                y_pred_mask = y_pred[mask]
+                rmse = np.sqrt(mean_squared_error(y_mask, y_pred_mask))
+                rmses.append(rmse)
+
+    marcas = ['peugeot', 'toyota', 'fiat', 'ds', 'ssangyong', 'chevrolet',
+       'citroen', 'isuzu', 'ford', 'renault', 'porsche', 'jeep',
+       'mbenz', 'mini', 'honda', 'hyundai', 'vw',
+       'l rover', 'audi', 'geely', 'jaguar', 'daihatsu', 'subaru',
+       'suzuki', 'haval', 'dodge', 'nissan', 'lexus', 'kia', 'mitsubishi',
+       'lifan', 'jac', 'bmw', 'a romeo', 'chery', 'baic', 'jetour',
+       'volvo']
+
+        
+    return marcas, rmses
+
+def plot_rmse_by_brand(marcas, rmses):
+    plt.figure(figsize=(10, 6))
+    plt.bar(marcas, rmses)
+    plt.xlabel('Marca', fontsize=14)
+    plt.ylabel('RMSE', fontsize=14)
+    plt.xticks(rotation=90, fontsize=14)
+    plt.tick_params(axis='both', which='major', labelsize=14)
+   
+    plt.show()
+
+
 def main():
     file_path = r'procesamiento_datos/data_train.csv'
     data_train = pd.read_csv(file_path)
@@ -86,6 +127,13 @@ def main():
     y_pred = model.predict(X_valid)
     mse = mean_squared_error(y_valid, y_pred)
     r2 = r2_score(y_valid, y_pred)
+
+    marcas, rmses = calculate_rmse_by_brand(X_valid, y_valid, y_pred)
+    print(marcas)
+    print(len(marcas))
+    print(rmses)
+    print(len(rmses))
+    plot_rmse_by_brand(marcas, rmses)
     
     plt.scatter(y_valid, y_pred)
     plt.xlabel('Real')
