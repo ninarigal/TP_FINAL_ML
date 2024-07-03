@@ -11,7 +11,7 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from run.run_reg import add_regresion_features, drop_columns_regresion
+from run.run_reg_l2 import add_regresion_features, drop_columns_regresion
 
 
 def main():
