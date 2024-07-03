@@ -118,13 +118,11 @@ def main():
     X_valid = data_valid.drop(['Precio'], axis=1)
     y_valid = data_valid['Precio']
 
-    y_train = np.log1p(y_train)
 
-    #model = Lasso(alpha=0.00001, max_iter=10000, random_state=42)
-    model = Ridge(alpha=1.3, max_iter=10000, random_state=42)
+    model = Lasso(alpha=1.0, max_iter=10000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_valid)
-    y_pred = np.expm1(y_pred)
+    y_pred = y_pred
 
     marcas, rmses = calculate_rmse_by_brand(X_valid, y_valid, y_pred)
     print(marcas)
@@ -149,17 +147,17 @@ def main():
     print(f'MAE: {np.mean(np.abs(y_pred - y_valid))}')
     print()
 
-    with open('metrics_reg.txt', 'w') as file:
+    with open('metrics_reg_l1.txt', 'w') as file:
         file.write(f'MSE: {mse}\n')
         file.write(f'RMSE: {np.sqrt(mse)}\n')
         file.write(f'R2: {r2}\n')
     # save model as pkl
-    joblib.dump(model, 'models/model_regr.pkl')
+    joblib.dump(model, 'models/model_regl1.pkl')
 
 
 if __name__ == '__main__':
     main()
-    model_path = 'models/model_regr.pkl'
+    model_path = 'models/model_regl1.pkl'
     # # print("Precio estimado: ", predict_precio_regresion(model_path, 'Volkswagen', 'Golf', '1.0 Highline', 'Gris', 'Automática', 1.0, '58000 km', 'Golf Highline 1.0 2020', 'Particular', 2020, 'Nafta', 'Hatchback', 'Media', 'Sí'))
     data_test = pd.read_csv('procesamiento_datos/data_test.csv')
     categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
@@ -168,7 +166,7 @@ if __name__ == '__main__':
     X_test = data_test.drop(['Precio'], axis=1)
     y_test = data_test['Precio']
     model = joblib.load(model_path)
-    y_pred = np.expm1(model.predict(X_test))
+    y_pred = model.predict(X_test)
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
     print(f'Test set')
@@ -177,10 +175,12 @@ if __name__ == '__main__':
     print(f'R2: {r2}')
     print(f'MAE: {np.mean(np.abs(y_pred - y_test))}')
     print()
-    with open('metrics_reg_test.txt', 'w') as file:
+
+    with open('metrics_reg_l1_test.txt', 'w') as file:
         file.write(f'MSE: {mse}\n')
         file.write(f'RMSE: {np.sqrt(mse)}\n')
         file.write(f'R2: {r2}\n')
+    
 
 
   
