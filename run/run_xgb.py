@@ -12,27 +12,17 @@ import matplotlib.pyplot as plt
 from procesamiento_datos.clean_data import clean_dataset
 from procesamiento_datos.features import add_features
 
-def add_features_xgb(df, categorical_columns, mode='train'):
-    df = one_hot_encoding(df, categorical_columns, mode=mode)
-    new_columns = {}
-    for col in df.columns:
-        if 'Marca_' in col:
-            new_columns[col + 'Edad'] = df[col] * df['Edad']
-    new_columns_df = pd.DataFrame(new_columns)
-    df = pd.concat([df, new_columns_df], axis=1)
-    return df
-
 def drop_columns_xgb(df):
     df.drop(['Versión'], axis=1, inplace=True)
     df.drop(['Motor'], axis=1, inplace=True)
-    # df.drop(['Tipo de vendedor'], axis=1, inplace=True)
     df.drop(['Título'], axis=1, inplace=True)
     df.drop(['Color'], axis=1, inplace=True)
     df.drop(['Edad2'], axis=1, inplace=True)
     df.drop(['Km_Edad'], axis=1, inplace=True)
     df.drop(['Log_Kilómetros'], axis=1, inplace=True)
     df.drop(['Log_Edad'], axis=1, inplace=True)
-    df.drop(['Color_extraño'], axis=1, inplace=True)
+    df.drop(['Kilómetros2'], axis=1, inplace=True)
+    df.drop(['Kilómetros_Edad'], axis=1, inplace=True)
     return df
 
 def predict_precio_xgb(model_path, marca, modelo, version, color, transmision, motor, kilometros, titulo, tipo_vendedor, anio, tipo_combustible, tipo_carroceria, puertas, camara_retroceso):
@@ -56,7 +46,7 @@ def predict_precio_xgb(model_path, marca, modelo, version, color, transmision, m
     auto_df = clean_dataset(auto_df, mode='test')
     auto_df = add_features(auto_df, mode='test')
     categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
-    auto_df = add_features_xgb(auto_df, categorical_columns, mode='test')
+    auto_df = one_hot_encoding(auto_df, categorical_columns, mode='test')
     auto_df = drop_columns_xgb(auto_df)
     model = joblib.load(model_path)
     precio = model.predict(auto_df)
@@ -71,11 +61,13 @@ def main():
     data_valid = pd.read_csv(file_path)
 
     categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
-    
-    data_train = add_features_xgb(data_train, categorical_columns, mode='train')
-    data_train = drop_columns_xgb(data_train)
 
-    data_valid = add_features_xgb(data_valid, categorical_columns, mode='test')
+    data_train = drop_columns_xgb(data_train)
+        
+    data_train = one_hot_encoding(data_train, categorical_columns, mode='train')
+    # data_train = drop_columns_xgb(data_train)
+
+    data_valid = one_hot_encoding(data_valid, categorical_columns, mode='test')
     data_valid = drop_columns_xgb(data_valid)
 
     X_train = data_train.drop(['Precio'], axis=1)
@@ -110,7 +102,14 @@ def main():
     print(f'MAE: {np.mean(np.abs(y_pred - y_valid))}')
     print()
 
-    joblib.dump(model, 'models/xgb_model.pkl')
+    joblib.dump(model, 'models/model_xgb.pkl')
+    with open('metrics/metrics_reg_l1.txt', 'w') as file:
+        file.write(f'MSE: {mse}\n')
+        file.write(f'RMSE: {np.sqrt(mse)}\n')
+        file.write(f'R2: {r2}\n')
+    # save model as pkl
+    joblib.dump(model, 'models/model_xgb.pkl')
+    
 
 
 
@@ -119,7 +118,7 @@ if __name__ == '__main__':
     file_path = r'procesamiento_datos/data_test.csv'
     data_test = pd.read_csv(file_path)
     categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
-    data_test = add_features_xgb(data_test, categorical_columns, mode='test')
+    data_test = one_hot_encoding(data_test, categorical_columns, mode='test')
     data_test = drop_columns_xgb(data_test)
     X_test = data_test.drop(['Precio'], axis=1)
     y_test = data_test['Precio']
@@ -142,13 +141,13 @@ if __name__ == '__main__':
     plt.show()
 
     # ver que autos son los que quedan mal
-    for i in range(len(y_test)):
-        if abs(y_test.iloc[i] - y_pred[i]) > 50000:
-            for j in range(len(data_test.columns)):
-                if data_test.iloc[i, j] == 1:
-                    print(data_test.columns[j])
-            print(f'Pred: {y_pred[i]} Real: {y_test.iloc[i]}')
-            print()
+    # for i in range(len(y_test)):
+    #     if abs(y_test.iloc[i] - y_pred[i]) > 50000:
+    #         for j in range(len(data_test.columns)):
+    #             if data_test.iloc[i, j] == 1:
+    #                 print(data_test.columns[j])
+    #         print(f'Pred: {y_pred[i]} Real: {y_test.iloc[i]}')
+    #         print()
 
 
 

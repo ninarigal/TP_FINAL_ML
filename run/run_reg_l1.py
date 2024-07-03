@@ -6,9 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # from xgboost_model import xgboost, xgboost_cv
 from procesamiento_datos.features import one_hot_encoding
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import Ridge, Lasso, ElasticNet
-from sklearn.neural_network import MLPRegressor
+from sklearn.linear_model import Lasso
 import joblib
 import matplotlib.pyplot as plt
 from procesamiento_datos.clean_data import clean_dataset
@@ -147,7 +145,7 @@ def main():
     print(f'MAE: {np.mean(np.abs(y_pred - y_valid))}')
     print()
 
-    with open('metrics_reg_l1.txt', 'w') as file:
+    with open('metrics/metrics_reg_l1.txt', 'w') as file:
         file.write(f'MSE: {mse}\n')
         file.write(f'RMSE: {np.sqrt(mse)}\n')
         file.write(f'R2: {r2}\n')
