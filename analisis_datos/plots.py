@@ -41,6 +41,9 @@ def plot_histogram(precios):
 
 
 def plot_correlaciones(precio, features):
+
+    print('SHAPE:', features.shape)
+
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(9, 9))
     axes = axes.flatten()
     columnas_numeric = features.columns
@@ -53,8 +56,13 @@ def plot_correlaciones(precio, features):
         axes[i].tick_params(labelsize=6)
         axes[i].set_xlabel(colum)
         axes[i].set_ylabel(r'Precio')
+        if colum == 'Kilómetros':
+            axes[i].set_xlim(-10, 800000)
+        if colum == 'Edad':
+            axes[i].set_xlim(-10, 40)
     fig.tight_layout()
     plt.show()
+
 
 
 def plot_cobertura(gama1, gama2, gama3):
