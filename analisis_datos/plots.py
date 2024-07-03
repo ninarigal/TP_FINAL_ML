@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 def plot_histogram(precios):
-    fig, ax = plt.subplots(nrows=3, ncols=1, figsize=(10, 10))
+    fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
     ax[0].hist(precios, bins=100, alpha=0.6, color='b', density=True)
     ax[0].set_xlabel('Precio')
     ax[0].set_ylabel('Frecuencia')
@@ -25,17 +25,6 @@ def plot_histogram(precios):
     x = np.linspace(xmin, xmax, 100)
     p = norm.pdf(x, mu, std)
     ax[1].plot(x, p, 'k', linewidth=2)
-
-
-    ax[2].hist(np.sqrt(precios), bins=100, alpha=0.6, color='b', density=True)
-    ax[2].set_xlabel(r'$\sqrt{Precio}$')
-    ax[2].set_ylabel(r'Frecuencia')
-
-    mu, std = norm.fit(np.sqrt(precios))
-    xmin, xmax = ax[2].get_xlim()
-    x = np.linspace(xmin, xmax, 100)
-    p = norm.pdf(x, mu, std)
-    ax[2].plot(x, p, 'k', linewidth=2)
 
     plt.show()
 

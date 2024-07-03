@@ -103,7 +103,7 @@ def main():
     print()
 
     joblib.dump(model, 'models/model_xgb.pkl')
-    with open('metrics/metrics_reg_l1.txt', 'w') as file:
+    with open('metrics/metrics_xgb.txt', 'w') as file:
         file.write(f'MSE: {mse}\n')
         file.write(f'RMSE: {np.sqrt(mse)}\n')
         file.write(f'R2: {r2}\n')
@@ -115,39 +115,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    file_path = r'procesamiento_datos/data_test.csv'
-    data_test = pd.read_csv(file_path)
-    categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
-    data_test = one_hot_encoding(data_test, categorical_columns, mode='test')
-    data_test = drop_columns_xgb(data_test)
-    X_test = data_test.drop(['Precio'], axis=1)
-    y_test = data_test['Precio']
-    model = joblib.load('models/xgb_model.pkl')
-    y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    print(f'Test set')
-    print(f'MSE: {mse}')
-    print(f'RMSE: {np.sqrt(mse)}')
-    print(f'R2: {r2}')
-    print(f'MAE: {np.mean(np.abs(y_pred - y_test))}')
-    print()
-    
-    plt.scatter(y_test, y_pred)
-    plt.xlabel('Real')
-    plt.ylabel('Predicción')
-    plt.title('Predicción vs Real')
-    plt.plot([0, 300000], [0, 300000], color='red')
-    plt.show()
-
-    # ver que autos son los que quedan mal
-    # for i in range(len(y_test)):
-    #     if abs(y_test.iloc[i] - y_pred[i]) > 50000:
-    #         for j in range(len(data_test.columns)):
-    #             if data_test.iloc[i, j] == 1:
-    #                 print(data_test.columns[j])
-    #         print(f'Pred: {y_pred[i]} Real: {y_test.iloc[i]}')
-    #         print()
-
-
-

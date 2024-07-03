@@ -6,7 +6,7 @@ from features import add_features
 
 
 if __name__ == '__main__':
-    file_path = 'procesamiento_datos/pf_suvs_i302_1s2024.csv'
+    file_path = 'pf_suvs_i302_1s2024.csv'
     data_dev, data_test = divide_dev_test(file_path)
     print(data_dev.shape)
     print(data_test.shape)

@@ -28,8 +28,6 @@ def main():
     data_train = drop_columns_regresion(data_train)
     data_valid = drop_columns_regresion(data_valid)
 
-    print(data_train.columns)
-
     data_train = one_hot_encoding(data_train, categorical_columns, mode='train')
     data_valid = one_hot_encoding(data_valid, categorical_columns, mode='test')
 
