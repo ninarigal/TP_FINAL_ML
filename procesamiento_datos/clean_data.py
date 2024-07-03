@@ -167,7 +167,7 @@ def clean_km(df, mode='train'):
 
         if df['Kilómetros'][i] > 100000 and df['Edad'][i] < 3:
             df.loc[i, 'Kilómetros'] = df.loc[i, 'Edad'] * 10000
-            
+
     return df
 
 def clean_año(df, mode, current_year=2024):
@@ -457,6 +457,28 @@ def clean_motores(df):
    
     return df
         
+
+def clean_data_test(df):
+    # Filtrar las filas donde el precio es menor a 1000
+    df = df[df['Precio'] >= 1000]
+
+    # Crear una máscara booleana combinando todas las condiciones
+    mask = ~(
+        ((df['Modelo'] == 'bronco') & (df['Versión final'] == 'wildtrak') & (df['Precio'] > 80000)) |
+        ((df['Modelo'] == '3008') & (df['Versión final'] == 'other') & (df['Precio'] > 80000)) |
+        ((df['Modelo'] == 'renegade') & (df['Versión final'] == 'sport') & (df['Precio'] > 80000))
+    )
+
+    # Aplicar la máscara para filtrar el DataFrame
+    df = df[mask]
+
+    df.reset_index(drop=True, inplace=True)
+    return df
+
+
+
+    
+
 # def main():
 #     df = pd.read_csv("pf_suvs_i302_1s2024.csv")
 #     df = clean_dataset(df, 'test')

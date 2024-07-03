@@ -9,8 +9,8 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-
+from procesamiento_datos.clean_data import clean_dataset
+from procesamiento_datos.features import add_features
 
 def add_features_xgb(df, categorical_columns, mode='train'):
     df = one_hot_encoding(df, categorical_columns, mode=mode)
@@ -33,9 +33,34 @@ def drop_columns_xgb(df):
     df.drop(['Log_Kilómetros'], axis=1, inplace=True)
     df.drop(['Log_Edad'], axis=1, inplace=True)
     df.drop(['Color_extraño'], axis=1, inplace=True)
-    
     return df
 
+def predict_precio_xgb(model_path, marca, modelo, version, color, transmision, motor, kilometros, titulo, tipo_vendedor, anio, tipo_combustible, tipo_carroceria, puertas, camara_retroceso):
+    auto = {
+        'Marca': marca,
+        'Modelo': modelo,
+        'Versión': version,
+        'Color': color,
+        'Transmisión': transmision,
+        'Motor': motor,
+        'Kilómetros': kilometros,
+        'Título': titulo,
+        'Tipo de vendedor': tipo_vendedor,
+        'Año': anio,
+        'Tipo de combustible': tipo_combustible,
+        'Tipo de carrocería': tipo_carroceria,
+        'Puertas': puertas,
+        'Con cámara de retroceso': camara_retroceso
+    }
+    auto_df = pd.DataFrame(auto, index=[0])
+    auto_df = clean_dataset(auto_df, mode='test')
+    auto_df = add_features(auto_df, mode='test')
+    categorical_columns = ['Marca', 'Modelo', 'Transmisión', 'Versión final', 'Gama', 'Motor final', 'Tipo de vendedor']
+    auto_df = add_features_xgb(auto_df, categorical_columns, mode='test')
+    auto_df = drop_columns_xgb(auto_df)
+    model = joblib.load(model_path)
+    precio = model.predict(auto_df)
+    return precio[0] 
 
 
 def main():
@@ -115,6 +140,15 @@ if __name__ == '__main__':
     plt.title('Predicción vs Real')
     plt.plot([0, 300000], [0, 300000], color='red')
     plt.show()
+
+    # ver que autos son los que quedan mal
+    for i in range(len(y_test)):
+        if abs(y_test.iloc[i] - y_pred[i]) > 50000:
+            for j in range(len(data_test.columns)):
+                if data_test.iloc[i, j] == 1:
+                    print(data_test.columns[j])
+            print(f'Pred: {y_pred[i]} Real: {y_test.iloc[i]}')
+            print()
 
 
 
